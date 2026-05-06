@@ -1,0 +1,50 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ master-old ]
+  pull_request:
+    branches: [ master-old ]
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew install cmake ninja
+          echo "Xcode version: $(xcodebuild -version)"
+
+      - name: Configure CMake for iOS
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPCSX2_TARGET_IOS=ON \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/ios.toolchain.cmake \
+            -DIOS=ON
+
+      - name: Build
+        run: |
+          cmake --build build --target PCSX2 -j $(sysctl -n hw.ncpu)
+
+      - name: Create unsigned IPA
+        run: |
+          mkdir -p Payload/BionicSX2.app
+          cp build/bin/PCSX2 Payload/BionicSX2.app/
+          # Copy required resources (frameworks, assets, etc.)
+          # TODO: Add proper app bundle structure
+          zip -r BionicSX2.ipa Payload
+          echo "IPA created: BionicSX2.ipa"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BionicSX2-IPA
+          path: BionicSX2.ipa
+          retention-days: 7
