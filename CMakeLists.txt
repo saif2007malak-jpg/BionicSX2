@@ -10,6 +10,13 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 	message(FATAL_ERROR "PCSX2 does not support in-tree builds.  Please make a build directory that is not the PCSX2 source directory and generate your CMake project there using either `cmake -B build_directory` or by running cmake from the build directory.")
 endif()
 
+# iOS Target Option
+option(PCSX2_TARGET_IOS "Build for iOS target (Apple Silicon)" OFF)
+if(PCSX2_TARGET_IOS AND NOT CMAKE_TOOLCHAIN_FILE)
+	message(STATUS "iOS target enabled: Using iOS toolchain")
+	set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ios.toolchain.cmake CACHE FILEPATH "iOS toolchain file" FORCE)
+endif()
+
 # Project Name
 project(Pcsx2 C CXX)
 
@@ -47,7 +54,14 @@ add_subdirectory(common)
 
 # make pcsx2
 add_subdirectory(pcsx2)
-add_subdirectory(pcsx2-qt)
+if(NOT PCSX2_TARGET_IOS)
+	add_subdirectory(pcsx2-qt)
+endif()
+
+# iOS platform layer
+if(PCSX2_TARGET_IOS)
+	add_subdirectory(ios/platform)
+endif()
 
 # Updater is Windows only for now.
 if (WIN32)

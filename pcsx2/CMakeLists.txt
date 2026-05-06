@@ -1066,8 +1066,10 @@ if(_M_X86)
 	list(APPEND pcsx2LTOSources ${pcsx2x86Sources} ${pcsx2x86Headers})
 	target_link_libraries(PCSX2_FLAGS INTERFACE zydis)
 elseif(_M_ARM64)
-	list(APPEND pcsx2LTOSources ${pcsx2arm64Sources} ${pcsx2arm64Headers})
-	target_link_libraries(PCSX2_FLAGS INTERFACE vixl)
+	if(PCSX2_ENABLE_JIT)
+		list(APPEND pcsx2LTOSources ${pcsx2arm64Sources} ${pcsx2arm64Headers})
+		target_link_libraries(PCSX2_FLAGS INTERFACE vixl)
+	endif()
 endif()
 
 if(LTO_PCSX2_CORE)
@@ -1125,12 +1127,16 @@ endif()
 target_sources(PCSX2 PRIVATE ${pcsx2USBSources} ${pcsx2USBHeaders})
 
 if(APPLE OR BSD)
-	if(APPLE)
+	if(APPLE AND NOT IOS)
+		# macOS: use macOS-specific sources
 		target_sources(PCSX2 PRIVATE
 			${pcsx2OSXSources})
-	else()
+	elseif(BSD)
+		# FreeBSD: use FreeBSD-specific sources
 		target_sources(PCSX2 PRIVATE
 			${pcsx2FreeBSDSources})
+	else()
+		# iOS: skip macOS/FreeBSD sources (use ios/platform/ instead)
 	endif()
 	target_sources(PCSX2 PRIVATE
 		${pcsx2LinuxHeaders})
@@ -1238,16 +1244,29 @@ fixup_file_properties(PCSX2)
 force_include_last(PCSX2_FLAGS "/(usr|local)/include/?$")
 
 if (APPLE)
-	find_library(APPKIT_LIBRARY AppKit)
-	find_library(IOKIT_LIBRARY IOKit)
-	find_library(METAL_LIBRARY Metal)
-	find_library(QUARTZCORE_LIBRARY QuartzCore)
-	target_link_libraries(PCSX2_FLAGS INTERFACE
-		${APPKIT_LIBRARY}
-		${IOKIT_LIBRARY}
-		${METAL_LIBRARY}
-		${QUARTZCORE_LIBRARY}
-	)
+	if(IOS)
+		# iOS frameworks
+		find_library(UIKIT_LIBRARY UIKit)
+		find_library(METAL_LIBRARY Metal)
+		find_library(QUARTZCORE_LIBRARY QuartzCore)
+		target_link_libraries(PCSX2_FLAGS INTERFACE
+			${UIKIT_LIBRARY}
+			${METAL_LIBRARY}
+			${QUARTZCORE_LIBRARY}
+		)
+	else()
+		# macOS frameworks
+		find_library(APPKIT_LIBRARY AppKit)
+		find_library(IOKIT_LIBRARY IOKit)
+		find_library(METAL_LIBRARY Metal)
+		find_library(QUARTZCORE_LIBRARY QuartzCore)
+		target_link_libraries(PCSX2_FLAGS INTERFACE
+			${APPKIT_LIBRARY}
+			${IOKIT_LIBRARY}
+			${METAL_LIBRARY}
+			${QUARTZCORE_LIBRARY}
+		)
+	endif()
 endif()
 
 set_property(GLOBAL PROPERTY PCSX2_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})

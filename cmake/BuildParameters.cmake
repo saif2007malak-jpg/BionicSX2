@@ -13,6 +13,11 @@ option(USE_VTUNE "Plug VTUNE to profile GS JIT.")
 option(PACKAGE_MODE "Use this option to ease packaging of PCSX2 (developer/distribution option)")
 
 #-------------------------------------------------------------------------------
+# JIT Option
+#-------------------------------------------------------------------------------
+option(PCSX2_ENABLE_JIT "Enable JIT recompiler (interpreter only if OFF)" ${_M_X86})
+
+#-------------------------------------------------------------------------------
 # Graphical option
 #-------------------------------------------------------------------------------
 if(NOT APPLE)
@@ -34,7 +39,7 @@ if(UNIX)
 	option(USE_LINKED_FFMPEG "Links with ffmpeg instead of using dynamic loading" OFF)
 endif()
 
-if(APPLE)
+if(APPLE AND NOT IOS)
 	option(OSX_USE_DEFAULT_SEARCH_PATH "Don't prioritize system library paths" OFF)
 	option(SKIP_POSTPROCESS_BUNDLE "Skip postprocessing bundle for redistributability" OFF)
 endif()
@@ -272,7 +277,7 @@ set(PCSX2_WARNINGS ${DEFAULT_WARNINGS})
 # MacOS-specific things
 #-------------------------------------------------------------------------------
 
-if(NOT CMAKE_GENERATOR MATCHES "Xcode")
+if(NOT CMAKE_GENERATOR MATCHES "Xcode" AND NOT IOS)
 	# Assume Xcode builds aren't being used for distribution
 	# Helpful because Xcode builds don't build multiple metallibs for different macOS versions
 	# Also helpful because Xcode's interactive shader debugger requires apps be built for the latest macOS
