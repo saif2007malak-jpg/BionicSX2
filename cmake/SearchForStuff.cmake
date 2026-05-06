@@ -217,9 +217,9 @@ if(PCSX2_TARGET_IOS)
             message(STATUS "iOS: Using bundled zstd")
         endif()
     endif()
-    # Zstd alias (for libzip)
-    if(TARGET zstd AND NOT TARGET Zstd::Zstd)
-        add_library(Zstd::Zstd ALIAS zstd)
+    # Zstd alias (for libzip) — actual target is libzstd_static, not zstd
+    if(TARGET libzstd_static AND NOT TARGET Zstd::Zstd)
+        add_library(Zstd::Zstd ALIAS libzstd_static)
     endif()
 
     # lz4
