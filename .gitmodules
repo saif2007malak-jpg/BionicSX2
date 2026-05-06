@@ -1,0 +1,24 @@
+[submodule "3rdparty/libpng"]
+	path = 3rdparty/libpng
+	url = https://github.com/glennrp/libpng.git
+[submodule "3rdparty/zstd"]
+	path = 3rdparty/zstd
+	url = https://github.com/facebook/zstd.git
+[submodule "3rdparty/lz4"]
+	path = 3rdparty/lz4
+	url = https://github.com/lz4/lz4.git
+[submodule "3rdparty/libwebp"]
+	path = 3rdparty/libwebp
+	url = https://github.com/webmproject/libwebp.git
+[submodule "3rdparty/freetype"]
+	path = 3rdparty/freetype
+	url = https://github.com/freetype/freetype.git
+[submodule "3rdparty/libjpeg-turbo"]
+	path = 3rdparty/libjpeg-turbo
+	url = https://github.com/libjpeg-turbo/libjpeg-turbo.git
+[submodule "3rdparty/plutovg"]
+	path = 3rdparty/plutovg
+	url = https://github.com/sammycage/plutovg.git
+[submodule "3rdparty/plutosvg"]
+	path = 3rdparty/plutosvg
+	url = https://github.com/sammycage/plutosvg.git
