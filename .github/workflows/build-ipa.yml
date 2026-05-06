@@ -2,9 +2,9 @@ name: Build iOS IPA
 
 on:
   push:
-    branches: [ master-old ]
+    branches: [ master-old, main ]
   pull_request:
-    branches: [ master-old ]
+    branches: [ master-old, main ]
   workflow_dispatch:
 
 jobs:
