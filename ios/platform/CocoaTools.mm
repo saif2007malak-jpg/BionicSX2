@@ -65,9 +65,11 @@ std::optional<float> CocoaTools::GetViewRefreshRate(const WindowInfo& wi)
 {
     // iOS: Use UIScreen maximumFramesPerSecond
     // Note: This is only available on iOS 10.0+
-    if ([UIScreen instancesRespondToSelector:@selector(maximumFramesPerSecond)])
+    if (@available(iOS 10.0, *))
     {
-        return [UIScreen mainScreen].maximumFramesPerSecond;
+        UIScreen* screen = [UIScreen mainScreen];
+        if (screen)
+            return [screen maximumFramesPerSecond];
     }
     // Fallback: assume 60 FPS
     return 60.0f;
@@ -156,7 +158,9 @@ void CocoaTools::GetWindowInfoFromWindow(WindowInfo* wi, void* cf_window)
     if (cf_window)
     {
         UIView* view = (__bridge UIView*)cf_window;
-        float scale = [[UIScreen mainScreen] scale];
+        float scale = 1.0f;
+        if (@available(iOS 4.0, *))
+            scale = [[UIScreen mainScreen] scale];
         CGRect bounds = view.bounds;
 
         wi->type = WindowInfo::Type::Surfaceless;

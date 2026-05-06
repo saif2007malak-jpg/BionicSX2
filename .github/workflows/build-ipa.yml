@@ -35,12 +35,42 @@ jobs:
 
       - name: Create unsigned IPA
         run: |
-          mkdir -p Payload/BionicSX2.app
-          cp build/bin/PCSX2 Payload/BionicSX2.app/
-          # Copy required resources (frameworks, assets, etc.)
-          # TODO: Add proper app bundle structure
+          set -e
+          APP_DIR=Payload/BionicSX2.app
+          mkdir -p ${APP_DIR}/Resources/cheats
+          mkdir -p ${APP_DIR}/Resources/patches
+          mkdir -p ${APP_DIR}/Resources/translations
+
+          # Copy executable (must be at .app root)
+          cp build/bin/PCSX2 ${APP_DIR}/BionicSX2
+
+          # Copy Info.plist
+          cp ios/Info.plist ${APP_DIR}/Info.plist
+
+          # Copy Metal shaders to Resources/
+          if [ -d "build/pcsx2/GS/Renderers/Metal" ]; then
+            cp build/pcsx2/GS/Renderers/Metal/*.metal ${APP_DIR}/Resources/ 2>/dev/null || true
+          fi
+
+          # Copy PCSX2 resources (GameIndex, cheats, patches, etc.)
+          if [ -d "bin/resources" ]; then
+            cp -r bin/resources/* ${APP_DIR}/Resources/ 2>/dev/null || true
+          fi
+
+          # Copy entitlements
+          mkdir -p ${APP_DIR}/Contents
+          cp ios/entitlements/BionicSX2.entitlements ${APP_DIR}/Contents/
+
+          # Set executable permission
+          chmod +x ${APP_DIR}/BionicSX2
+
+          # Sign with entitlements (ad-hoc, unsigned IPA for sideloading)
+          codesign --force --sign - --entitlements ios/entitlements/BionicSX2.entitlements ${APP_DIR}/BionicSX2 || true
+
+          # Create IPA (zip format)
           zip -r BionicSX2.ipa Payload
           echo "IPA created: BionicSX2.ipa"
+          ls -la BionicSX2.ipa
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
