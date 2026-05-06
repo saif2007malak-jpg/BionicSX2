@@ -168,6 +168,20 @@ endif()
 add_subdirectory(3rdparty/fast_float EXCLUDE_FROM_ALL)
 add_subdirectory(3rdparty/rapidyaml EXCLUDE_FROM_ALL)
 add_subdirectory(3rdparty/lzma EXCLUDE_FROM_ALL)
+
+# zstd — must be before libchdr and libzip (they link to Zstd::Zstd)
+if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/zstd/CMakeLists.txt")
+    add_subdirectory(3rdparty/zstd/build/cmake EXCLUDE_FROM_ALL)
+    if(TARGET libzstd_static AND NOT TARGET Zstd::Zstd)
+        add_library(Zstd::Zstd ALIAS libzstd_static)
+    endif()
+endif()
+
+# fmt — must be before pcsx2 (links to fmt::fmt)
+# Prevent fmt from being built with exceptions, or being thrown at call sites.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DFMT_USE_EXCEPTIONS=0 -DFMT_USE_RTTI=0")
+add_subdirectory(3rdparty/fmt EXCLUDE_FROM_ALL)
+
 add_subdirectory(3rdparty/libchdr EXCLUDE_FROM_ALL)
 disable_compiler_warnings_for_target(libchdr)
 add_subdirectory(3rdparty/soundtouch EXCLUDE_FROM_ALL)
@@ -207,20 +221,7 @@ if(PCSX2_TARGET_IOS)
         endif()
     endif()
 
-    # zstd
-    if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/zstd/CMakeLists.txt")
-        add_subdirectory(3rdparty/zstd/build/cmake EXCLUDE_FROM_ALL)
-        if(TARGET zstd)
-            set(Zstd_FOUND TRUE)
-            set(Zstd_LIBRARIES zstd)
-            set(Zstd_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/zstd/lib/zstd.h")
-            message(STATUS "iOS: Using bundled zstd")
-        endif()
-    endif()
-    # Zstd alias (for libzip) — actual target is libzstd_static, not zstd
-    if(TARGET libzstd_static AND NOT TARGET Zstd::Zstd)
-        add_library(Zstd::Zstd ALIAS libzstd_static)
-    endif()
+    # zstd is now added in the common section (before libchdr/libzip)
 
     # lz4
     if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/lz4/CMakeLists.txt")
@@ -309,9 +310,6 @@ if(NOT PCSX2_TARGET_IOS)
         add_subdirectory(3rdparty/vixl EXCLUDE_FROM_ALL)
     endif()
 
-    # Prevent fmt from being built with exceptions, or being thrown at call sites.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DFMT_USE_EXCEPTIONS=0 -DFMT_USE_RTTI=0")
-    add_subdirectory(3rdparty/fmt EXCLUDE_FROM_ALL)
 
     # Deliberately at the end. We don't want to set the flag on third-party projects.
     if(MSVC)
