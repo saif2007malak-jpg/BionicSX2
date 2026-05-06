@@ -73,3 +73,14 @@ set(WEBP_HAVE_VULKAN FALSE)
 
 message(STATUS "iOS toolchain: Targeting iOS ${CMAKE_OSX_DEPLOYMENT_TARGET}+ on ARM64")
 message(STATUS "iOS SDK: ${CMAKE_OSX_SYSROOT}")
+
+# Fix: Disable plutosvg/plutovg examples (causes "smiley" target conflict)
+set(PLUTOSVG_BUILD_EXAMPLES OFF)
+set(PLUTOVG_BUILD_EXAMPLES OFF)
+
+# Fix: Missing system libraries (iOS has NO system libs)
+set(OPENGL_FOUND FALSE)
+set(SDL2_FOUND FALSE)
+set(GIF_FOUND FALSE)
+set(BrotliDec_FOUND FALSE)
+set(HarfBuzz_FOUND FALSE)

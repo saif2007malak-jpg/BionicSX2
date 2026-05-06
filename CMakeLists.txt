@@ -96,7 +96,8 @@ No support will be provided, continue at your own risk.
 endif()
 
 if(_M_ARM64)
-	message(WARNING "
+    if(NOT PCSX2_TARGET_IOS)
+        message(WARNING "
 *************** UNSUPPORTED CONFIGURATION ***************
 
 Apple Silicon support in PCSX2 is INCOMPLETE. There are
@@ -108,4 +109,5 @@ unless you want to work on the recompilers.
 We also ask that you read https://dont-ship.it/.
 
 *********************************************************")
+    endif()
 endif()
