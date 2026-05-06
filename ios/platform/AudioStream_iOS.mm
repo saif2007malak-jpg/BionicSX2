@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2002-2025 PCSX2 Dev Team
 // SPDX-License-Identifier: GPL-3.0+
-// iOS implementation of AudioStream using AVAudioEngine
+// iOS implementation of AudioStream using AVAudioEngine + AVAudioSourceNode
 // MUST be .mm (Objective-C++) — non-negotiable (uses AVFoundation)
 
 #if ! __has_feature(objc_arc)
@@ -13,25 +13,9 @@
 
 #include <AVFoundation/AVFoundation.h>
 #include <AudioToolbox/AudioToolbox.h>
+#include <cstring>
 
 // MARK: - AudioStream_iOS
-
-@interface BionicSX2AudioDelegate : NSObject <AVAudioPlayerDelegate>
-{
-    PCSX2::Host::AudioStream* _stream;
-}
-- (instancetype)initWithStream:(PCSX2::Host::AudioStream*)stream;
-@end
-
-@implementation BionicSX2AudioDelegate
-- (instancetype)initWithStream:(PCSX2::Host::AudioStream*)stream
-{
-    self = [super init];
-    if (self)
-        _stream = stream;
-    return self;
-}
-@end
 
 namespace PCSX2::Host
 {
@@ -39,22 +23,26 @@ namespace PCSX2::Host
 class AudioStream_iOS final : public AudioStream
 {
 public:
-    AudioStream_iOS(u32 sample_rate, u32 channels, u32 bits)
-        : AudioStream(sample_rate, channels, bits)
+    AudioStream_iOS(u32 sample_rate, const AudioStreamParameters& parameters, bool stretch_enabled)
+        : AudioStream(sample_rate, parameters)
         , m_engine(nullptr)
-        , m_player(nullptr)
-    {}
+        , m_source_node(nullptr)
+        , m_audio_format(nil)
+    {
+        BaseInitialize(SampleReaderImpl<AudioExpansionMode::Disabled>, stretch_enabled);
+    }
 
     ~AudioStream_iOS() override
     {
-        Shutdown();
+        CloseDevice();
     }
 
     bool OpenDevice() override
     {
+        NSError* error = nil;
+
         // Configure AVAudioSession (mandatory on iOS)
         AVAudioSession* session = [AVAudioSession sharedInstance];
-        NSError* error = nil;
 
         // Set category to Playback (mute switch doesn't affect)
         if (![session setCategory:AVAudioSessionCategoryPlayback error:&error])
@@ -63,6 +51,9 @@ public:
                 [[error localizedDescription] UTF8String]);
             return false;
         }
+
+        // Set preferred sample rate
+        [session setPreferredSampleRate:m_sample_rate error:nil];
 
         // Activate the audio session
         if (![session setActive:true error:&error])
@@ -80,24 +71,53 @@ public:
             return false;
         }
 
-        // Configure for our audio format
-        AVAudioFormat* format = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:m_sample_rate
-                                                                 channels:m_channels];
-        if (!format)
+        // Create audio format: signed 16-bit interleaved -> we'll convert to float in the render block
+        // AVAudioSourceNode expects non-interleaved float format
+        AudioStreamBasicDescription hwFormat;
+        memset(&hwFormat, 0, sizeof(hwFormat));
+        hwFormat.mSampleRate = m_sample_rate;
+        hwFormat.mFormatID = kAudioFormatLinearPCM;
+        hwFormat.mFormatFlags = kAudioFormatFlagIsFloat | kAudioFormatFlagIsNonInterleaved;
+        hwFormat.mBytesPerPacket = sizeof(float);
+        hwFormat.mFramesPerPacket = 1;
+        hwFormat.mBytesPerFrame = sizeof(float);
+        hwFormat.mChannelsPerFrame = m_internal_channels;
+        hwFormat.mBitsPerChannel = 32;
+
+        m_audio_format = [[AVAudioFormat alloc] initWithStreamDescription:&hwFormat];
+        if (!m_audio_format)
         {
             Console.Error("Failed to create audio format (rate={}, channels={})",
-                m_sample_rate, m_channels);
+                m_sample_rate, m_internal_channels);
             m_engine = nil;
             return false;
         }
 
-        // Prepare the engine
-        if (![m_engine prepare:nil])
+        // Create source node with render block.
+        // this is captured by value (pointer copy). The block is owned by m_source_node,
+        // which is detached in CloseDevice() before the AudioStream_iOS is destroyed.
+        // Stopping the engine and detaching the node ensures the block is not called
+        // after teardown.
+        AudioStream_iOS* capturedSelf = this;
+        m_source_node = [[AVAudioSourceNode alloc] initWithRenderBlock:
+            ^OSStatus(BOOL* isSilence, const AudioTimeStamp* timestamp,
+                      AVAudioFrameCount frameCount, AudioBufferList* outputData)
+            {
+                return capturedSelf->RenderAudio(outputData, frameCount, isSilence);
+            }];
+
+        if (!m_source_node)
         {
-            Console.Error("Failed to prepare AVAudioEngine.");
+            Console.Error("Failed to create AVAudioSourceNode.");
             m_engine = nil;
             return false;
         }
+
+        // Attach source node to engine
+        [m_engine attachNode:m_source_node];
+
+        // Connect source node to main mixer
+        [m_engine connect:m_source_node to:[m_engine mainMixerNode] format:m_audio_format];
 
         m_is_open = true;
         return true;
@@ -107,9 +127,20 @@ public:
     {
         if (m_engine)
         {
-            [m_engine stop:nil];
+            // Stop engine first to prevent further render block calls
+            [m_engine stop];
+
+            // Detach source node to release the block (and its capture of this)
+            if (m_source_node)
+            {
+                [m_engine detachNode:m_source_node];
+                m_source_node = nil;
+            }
+
             m_engine = nil;
         }
+
+        m_audio_format = nil;
 
         // Deactivate audio session
         NSError* error = nil;
@@ -144,22 +175,20 @@ public:
 
     u32 GetBufferedFrames() const override
     {
-        // AVAudioEngine doesn't expose buffered frame count directly
-        // Return 0 to indicate "not applicable"
-        return 0;
+        return GetBufferedFramesRelaxed();
     }
 
     u32 GetAvailableFrames() const override
     {
-        // For AVAudioEngine, we don't have a direct query
-        // Return a reasonable estimate
-        return m_sample_rate / 10; // ~100ms of buffer
+        // Return how many frames we can still write
+        return m_buffer_size - GetBufferedFramesRelaxed();
     }
 
     void FramesAvailable() override
     {
-        // Called when new frames are available to play
-        // AVAudioEngine handles this internally via its render block
+        // AVAudioSourceNode pull-based — the render block is called when the audio system
+        // needs data, so we don't need to notify it explicitly.
+        // This method is called when new frames are written to the buffer.
     }
 
     void SetPaused(bool paused) override
@@ -171,6 +200,8 @@ public:
             [m_engine pause];
         else
             [m_engine startAndReturnError:nil];
+
+        m_paused = paused;
     }
 
     float GetOutputVolume() const override
@@ -186,21 +217,62 @@ public:
             [m_engine setOutputVolume:volume];
     }
 
-    void pWriteFramesOnBuffer(const void* frames, u32 count) override
+private:
+    OSStatus RenderAudio(AudioBufferList* outputData, AVAudioFrameCount frameCount, BOOL* isSilence)
     {
-        // AVAudioEngine uses a render block, not direct buffer writing
-        // This function should not be called in the AVAudioEngine implementation
-        Console.Warning("pWriteFramesOnBuffer called on AVAudioEngine stream — not supported.");
+        // Calculate how many frames are available
+        const u32 available = GetBufferedFramesRelaxed();
+        const u32 frames_to_read = std::min(static_cast<u32>(frameCount), available);
+
+        if (frames_to_read == 0)
+        {
+            // No data available — output silence
+            *isSilence = YES;
+            for (UInt32 i = 0; i < outputData->mNumberBuffers; i++)
+            {
+                memset(outputData->mBuffers[i].mData, 0, outputData->mBuffers[i].mDataByteSize);
+            }
+            return noErr;
+        }
+
+        // Read frames from the ring buffer
+        // We need a temporary buffer for interleaved s16 data
+        const u32 num_samples = frames_to_read * m_internal_channels;
+        std::unique_ptr<s16[]> temp_buffer = std::make_unique<s16[]>(num_samples);
+        ReadFrames(temp_buffer.get(), frames_to_read);
+
+        // Convert s16 to float and write to output buffers (non-interleaved)
+        // temp_buffer is interleaved: L0,R0,L1,R1,... for stereo
+        for (UInt32 i = 0; i < outputData->mNumberBuffers && i < m_internal_channels; i++)
+        {
+            float* dest = static_cast<float*>(outputData->mBuffers[i].mData);
+            for (UInt32 frame = 0; frame < frames_to_read; frame++)
+            {
+                // Deinterleave: channel i is at index (frame * channels + i)
+                s16 sample = temp_buffer[frame * m_internal_channels + i];
+                dest[frame] = sample / 32768.0f;
+            }
+        }
+
+        *isSilence = NO;
+        return noErr;
     }
 
-private:
     AVAudioEngine* m_engine;
-    BionicSX2AudioDelegate* m_delegate;
+    AVAudioSourceNode* m_source_node;
+    AVAudioFormat* m_audio_format;
 };
 
-AudioStream* AudioStream::Create(u32 sample_rate, u32 channels, u32 bits)
+std::unique_ptr<AudioStream> CreateIOSAudioStream(u32 sample_rate, const AudioStreamParameters& parameters,
+    bool stretch_enabled, Error* error)
 {
-    return new AudioStream_iOS(sample_rate, channels, bits);
+    auto stream = std::make_unique<AudioStream_iOS>(sample_rate, parameters, stretch_enabled);
+    if (!stream->OpenDevice())
+    {
+        Error::SetStringView(error, "Failed to open iOS audio device.");
+        return nullptr;
+    }
+    return stream;
 }
 
 } // namespace PCSX2::Host

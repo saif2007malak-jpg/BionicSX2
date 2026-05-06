@@ -46,5 +46,8 @@ set(IOS TRUE)
 set(APPLE TRUE)  # iOS is still Apple platform
 set(MACOS FALSE)  # But not macOS
 
+# Define IOS as a C++ preprocessor macro so #ifdef IOS works in code
+add_compile_definitions(IOS=1)
+
 message(STATUS "iOS toolchain: Targeting iOS ${CMAKE_OSX_DEPLOYMENT_TARGET}+ on ARM64")
 message(STATUS "iOS SDK: ${CMAKE_OSX_SYSROOT}")
