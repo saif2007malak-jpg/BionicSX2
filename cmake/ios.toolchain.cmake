@@ -49,5 +49,27 @@ set(MACOS FALSE)  # But not macOS
 # Define IOS as a C++ preprocessor macro so #ifdef IOS works in code
 add_compile_definitions(IOS=1)
 
+# ------------------------------------------------------------------------------
+# iOS dependency configuration
+# ------------------------------------------------------------------------------
+
+# Fix ERROR 2: freetype CMake version compatibility
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
+# Fix ERROR 1: libwebp — Disable command-line tools for iOS (no MACOSX_BUNDLE needed)
+set(WEBP_BUILD_ANIM_UTILS OFF)
+set(WEBP_BUILD_CWEBP OFF)
+set(WEBP_BUILD_DWEBP OFF)
+set(WEBP_BUILD_IMG2WEBP OFF)
+set(WEBP_BUILD_WEBPINFO OFF)
+set(WEBP_BUILD_WEBPMUX OFF)
+# Also disable OpenGL/Vulkan detection in libwebp (find_package called in deps.cmake)
+set(WEBP_HAVE_OPENGL FALSE)
+set(WEBP_HAVE_VULKAN FALSE)
+
+# Fix ERROR 3: PNG — Ensure bundled libpng is used correctly on iOS
+# Bundled libpng is added via add_subdirectory in cmake/SearchForStuff.cmake
+# The build sets PNG_FOUND, PNG_LIBRARIES, PNG_INCLUDE_DIRS automatically.
+
 message(STATUS "iOS toolchain: Targeting iOS ${CMAKE_OSX_DEPLOYMENT_TARGET}+ on ARM64")
 message(STATUS "iOS SDK: ${CMAKE_OSX_SYSROOT}")

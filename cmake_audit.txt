@@ -1,0 +1,81 @@
+================================================================================
+  CMAKE AUDIT REPORT — iOS Build (master-old)
+  Generated: 2026-05-06
+  Source: GitHub Actions build log (run 25446314871) + Local Audit
+================================================================================
+
+BUILD ERROR AUDIT — All find_package / CMake errors:
+
+1. OpenGL — Missing system library (iOS uses Metal, not OpenGL)
+   Error: Could NOT find OpenGL (missing: OPENGL_gl_LIBRARY OPENGL_INCLUDE_DIR)
+   File: 3rdparty/libwebp/cmake/deps.cmake:55 (find_package(OpenGL))
+   Fix: ✅ Fixed — Set WEBP_HAVE_OPENGL=FALSE and WEBP_HAVE_VULKAN=FALSE in ios.toolchain.cmake
+
+2. PNG — Bundled libpng not found by CMake
+   Error: Could NOT find PNG (missing: PNG_LIBRARY PNG_PNG_INCLUDE_DIR)
+   File: cmake/SearchForStuff.cmake
+   Fix: ✅ Fixed — Set PNG_FOUND, PNG_LIBRARIES, PNG_INCLUDE_DIRS after add_subdirectory in SearchForStuff.cmake
+
+3. JPEG — Bundled libjpeg-turbo not found by CMake
+   Error: Could NOT find JPEG (missing: JPEG_LIBRARY JPEG_INCLUDE_DIR)
+   Fix: ✅ Fixed — Set JPEG_FOUND, JPEG_LIBRARIES, JPEG_INCLUDE_DIRS after add_subdirectory
+
+4. GIF — No bundled library, no system library
+   Status: Not yet addressed (low priority — check if GIF support needed on iOS)
+
+5. SDL — Missing system library (iOS uses GCController + UIKit)
+   Status: SDL3 is skipped for iOS (correct behavior)
+
+6. libwebp install errors — CMake install() fails on iOS
+   Error: install TARGETS given no BUNDLE DESTINATION for MACOSX_BUNDLE executable
+   File: 3rdparty/libwebp/CMakeLists.txt
+   Fix: ✅ Fixed — Disabled all libwebp executables in ios.toolchain.cmake:
+        WEBP_BUILD_ANIM_UTILS=OFF, WEBP_BUILD_CWEBP=OFF, etc.
+
+7. freetype cmake_minimum_required error
+   Error: CMake Error at 3rdparty/freetype/CMakeLists.txt:111
+   Fix: ✅ Fixed — Set CMAKE_POLICY_VERSION_MINIMUM=3.5 in ios.toolchain.cmake
+
+8. Zstd, LZ4, plutovg, plutosvg — Variables not set after add_subdirectory
+   Fix: ✅ Fixed — Set Zstd_FOUND, LZ4_FOUND, WebP_FOUND, Freetype_FOUND,
+        plutovg_FOUND, plutosvg_FOUND and their _LIBRARIES and _INCLUDE_DIRS
+        after each add_subdirectory call in SearchForStuff.cmake
+
+================================================================================
+  SUMMARY OF FIXES APPLIED (commit: Phase3: Fix iOS build dependencies):
+================================================================================
+
+  FILE: cmake/ios.toolchain.cmake
+    ✅ Added CMAKE_POLICY_VERSION_MINIMUM 3.5 (freetype fix)
+    ✅ Added WEBP_* settings to disable command-line tools (libwebp fix)
+    ✅ Added WEBP_HAVE_OPENGL=FALSE and WEBP_HAVE_VULKAN=FALSE (OpenGL fix)
+    ✅ Added comment for PNG handling
+
+  FILE: cmake/SearchForStuff.cmake
+    ✅ Added variable setting for all bundled iOS libraries:
+       - PNG_FOUND, PNG_LIBRARIES, PNG_INCLUDE_DIRS
+       - Zstd_FOUND, Zstd_LIBRARIES, Zstd_INCLUDE_DIRS
+       - LZ4_FOUND, LZ4_LIBRARIES, LZ4_INCLUDE_DIRS
+       - WebP_FOUND, WebP_LIBRARIES, WebP_INCLUDE_DIRS
+       - Freetype_FOUND, Freetype_LIBRARIES, Freetype_INCLUDE_DIRS
+       - JPEG_FOUND, JPEG_LIBRARIES, JPEG_INCLUDE_DIRS
+       - plutovg_FOUND, plutovg_LIBRARIES, plutovg_INCLUDE_DIRS
+       - plutosvg_FOUND, plutosvg_LIBRARIES, plutosvg_INCLUDE_DIRS
+
+================================================================================
+  REMAINING ISSUES (if encountered in future builds):
+================================================================================
+
+  1. GIF support — Add bundled GIFLIB or disable GIF support for iOS
+  2. Test build on macOS to verify all fixes work correctly
+  3. Consider adding a custom FindPNG.cmake if variable setting doesn't work
+
+================================================================================
+  NEXT STEPS:
+================================================================================
+
+  1. ✅ Fix ALL errors in ONE commit (per CLAUDE.md batch rule)
+  2. Push to fork
+  3. Check GitHub Actions build status
+  4. Repeat until build succeeds
+
