@@ -243,16 +243,12 @@ if(PCSX2_TARGET_IOS)
         endif()
     endif()
 
-    # libjpeg-turbo
-    if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/libjpeg-turbo/CMakeLists.txt")
-        add_subdirectory(3rdparty/libjpeg-turbo EXCLUDE_FROM_ALL)
-        if(TARGET jpeg OR TARGET turbojpeg)
-            set(JPEG_FOUND TRUE)
-            set(JPEG_LIBRARIES jpeg)
-            set(JPEG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/libjpeg-turbo")
-            message(STATUS "iOS: Using bundled libjpeg-turbo")
-        endif()
-    endif()
+    # libjpeg-turbo - REMOVED: does not support add_subdirectory()
+    # Per libjpeg-turbo/CMakeLists.txt:59, must use ExternalProject_Add()
+    # Option B (RECOMMENDED): Use Apple's ImageIO framework for JPEG on iOS
+    # No external library needed - iOS has native JPEG support via ImageIO
+    # If JPEG support is needed later, implement an ImageIO-based loader in ios/platform/
+    message(STATUS "iOS: JPEG support disabled (use ImageIO framework if needed)")
 
     # plutovg
     if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/plutovg/CMakeLists.txt")
