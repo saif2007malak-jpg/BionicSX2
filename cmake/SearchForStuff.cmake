@@ -16,6 +16,13 @@ if(PCSX2_TARGET_IOS)
         set(ZLIB_INCLUDE_DIRS "")
         message(STATUS "iOS: Using iOS SDK zlib")
     endif()
+    # ZLIB alias (for libchdr) - create IMPORTED target for iOS SDK zlib
+    if(NOT TARGET ZLIB::ZLIB)
+        add_library(ZLIB::ZLIB STATIC IMPORTED)
+        set_target_properties(ZLIB::ZLIB PROPERTIES
+            IMPORTED_LOCATION "${ZLIB_LIBRARY}"
+        )
+    endif()
 
     # Note: Bundled library add_subdirectory calls are at the bottom of this file.
     # The variables below are set assuming the bundled builds succeed.
@@ -210,6 +217,10 @@ if(PCSX2_TARGET_IOS)
             message(STATUS "iOS: Using bundled zstd")
         endif()
     endif()
+    # Zstd alias (for libzip)
+    if(TARGET zstd AND NOT TARGET Zstd::Zstd)
+        add_library(Zstd::Zstd ALIAS zstd)
+    endif()
 
     # lz4
     if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/lz4/CMakeLists.txt")
@@ -242,6 +253,10 @@ if(PCSX2_TARGET_IOS)
             set(Freetype_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/freetype/include")
             message(STATUS "iOS: Using bundled freetype")
         endif()
+    endif()
+    # Freetype alias (for imgui)
+    if(TARGET freetype AND NOT TARGET Freetype::Freetype)
+        add_library(Freetype::Freetype ALIAS freetype)
     endif()
 
     # libjpeg-turbo - REMOVED: does not support add_subdirectory()

@@ -84,3 +84,7 @@ set(SDL2_FOUND FALSE)
 set(GIF_FOUND FALSE)
 set(BrotliDec_FOUND FALSE)
 set(HarfBuzz_FOUND FALSE)
+
+# CURL — disable for iOS (not needed, use NSURLSession)
+set(CURL_FOUND FALSE)
+set(PCSX2_USE_CURL OFF)
