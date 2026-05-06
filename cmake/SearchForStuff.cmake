@@ -233,7 +233,18 @@ if(PCSX2_TARGET_IOS)
         endif()
     endif()
 
-    # libwebp (tools disabled in ios.toolchain.cmake)
+    # libwebp — set flags as CACHE FORCE before add_subdirectory
+    # (normal variables from toolchain don't override option() in libwebp's CMakeLists.txt)
+    set(WEBP_BUILD_ANIM_UTILS OFF CACHE BOOL "" FORCE)
+    set(WEBP_BUILD_CWEBP OFF CACHE BOOL "" FORCE)
+    set(WEBP_BUILD_DWEBP OFF CACHE BOOL "" FORCE)
+    set(WEBP_BUILD_IMG2WEBP OFF CACHE BOOL "" FORCE)
+    set(WEBP_BUILD_WEBPINFO OFF CACHE BOOL "" FORCE)
+    set(WEBP_BUILD_WEBPMUX OFF CACHE BOOL "" FORCE)
+    set(WEBP_BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+    set(WEBP_HAVE_OPENGL FALSE CACHE BOOL "" FORCE)
+    set(WEBP_HAVE_VULKAN FALSE CACHE BOOL "" FORCE)
+
     if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/libwebp/CMakeLists.txt")
         add_subdirectory(3rdparty/libwebp EXCLUDE_FROM_ALL)
         if(TARGET webp)
@@ -244,7 +255,9 @@ if(PCSX2_TARGET_IOS)
         endif()
     endif()
 
-    # freetype
+    # freetype — set policy version before add_subdirectory to avoid CMake warnings/errors
+    set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
+
     if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/freetype/CMakeLists.txt")
         add_subdirectory(3rdparty/freetype EXCLUDE_FROM_ALL)
         if(TARGET freetype)
