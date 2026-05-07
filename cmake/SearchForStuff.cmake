@@ -229,6 +229,11 @@ if(PCSX2_TARGET_IOS)
             set(PNG_LIBRARY png_static)
             set(PNG_LIBRARIES png_static)
             set(PNG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/libpng" "${CMAKE_BINARY_DIR}/3rdparty/libpng")
+            # Ensure generated pnglibconf.h is findable
+            target_include_directories(png_static INTERFACE
+                $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/3rdparty/libpng>
+                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/3rdparty/libpng>
+            )
             if(NOT TARGET PNG::PNG)
                 add_library(PNG::PNG ALIAS png_static)
             endif()
