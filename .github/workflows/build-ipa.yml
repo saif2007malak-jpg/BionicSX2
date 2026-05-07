@@ -64,7 +64,16 @@ jobs:
           path: unique_errors.txt
 
       - name: Find executable
-        run: find build/ -name "PCSX2" -o -name "*.app" 2>/dev/null | head -20
+        run: |
+          find build/ -name "PCSX2" -o -name "*.app" 2>/dev/null | head -20
+          echo "--- Checking for PCSX2 static libraries ---"
+          find build/ -name "*.a" | grep -i pcsx2 | head -10
+          echo "--- Checking for libPCSX2 files ---"
+          find build/ -name "libPCSX2*" | head -10
+          echo "--- Listing build/pcsx2/ contents ---"
+          ls build/pcsx2/ 2>/dev/null | head -20
+          echo "--- Checking build.ninja for PCSX2 references ---"
+          cat build/build.ninja 2>/dev/null | grep -i "pcsx2" | head -10
 
       - name: Create unsigned IPA
         run: |
