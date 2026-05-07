@@ -63,6 +63,9 @@ jobs:
           name: unique-errors
           path: unique_errors.txt
 
+      - name: Find executable
+        run: find build/ -name "PCSX2" -o -name "*.app" 2>/dev/null | head -20
+
       - name: Create unsigned IPA
         run: |
           set -e
