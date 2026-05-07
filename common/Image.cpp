@@ -731,13 +731,13 @@ bool WebPFileLoader(RGBA8Image* image, const char* filename, std::FILE* fp)
 	if (!data.has_value())
 		return false;
 
-	return WebP::WebPBufferLoader(image, data->data(), data->size());
+	return WebPBufferLoader(image, data->data(), data->size());
 }
 
 bool WebPFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp, u8 quality)
 {
 	std::vector<u8> buffer;
-	if (!WebP::WebPBufferSaver(image, &buffer, quality))
+	if (!WebPBufferSaver(image, &buffer, quality))
 		return false;
 
 	return (std::fwrite(buffer.data(), buffer.size(), 1, fp) == 1);

@@ -5,7 +5,11 @@
 
 #include "Input/InputSource.h"
 
+#ifndef IOS
 #include <SDL3/SDL.h>
+#else
+// iOS: SDL not available — InputSource must use GCController / UIKit touch instead
+#endif
 
 #include <array>
 #include <functional>

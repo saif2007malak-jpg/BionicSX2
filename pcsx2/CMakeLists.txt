@@ -1267,7 +1267,8 @@ if(COMMAND target_precompile_headers)
 		set_source_files_properties(
 			${CMAKE_SOURCE_DIR}/ios/platform/CocoaTools.mm
 			${CMAKE_SOURCE_DIR}/ios/platform/AudioStream_iOS.mm
-			PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+			${CMAKE_SOURCE_DIR}/ios/platform/FileSystem_iOS.mm
+			PROPERTIES SKIP_PRECOMPILE_HEADERS ON COMPILE_FLAGS "-fobjc-arc")
 		# Metal renderer .mm files (if Metal is enabled)
 		set_source_files_properties(
 			${CMAKE_SOURCE_DIR}/pcsx2/GS/Renderers/Metal/GSMTLDeviceInfo.mm
@@ -1283,6 +1284,8 @@ if(IOS)
 	target_include_directories(PCSX2_FLAGS INTERFACE
 		${CMAKE_SOURCE_DIR}/common
 		${CMAKE_SOURCE_DIR}/pcsx2)
+		# Define IOS so C++ code can use #ifdef IOS
+		target_compile_definitions(PCSX2_FLAGS INTERFACE IOS=1)
 endif()
 
 # Copy resource files if needed

@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifdef IOS
+#error "Vulkan is not available on iOS. Use Metal renderer instead."
+#endif
+
 class Error;
 
 #define VK_NO_PROTOTYPES

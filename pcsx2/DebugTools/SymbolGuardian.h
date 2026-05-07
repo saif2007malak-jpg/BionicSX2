@@ -9,9 +9,13 @@
 #include <mutex>
 #include <shared_mutex>
 
+#ifndef IOS
 #include <ccc/ast.h>
 #include <ccc/symbol_database.h>
 #include <ccc/symbol_file.h>
+#else
+// iOS: ccc library not available — debug symbols disabled on this platform
+#endif
 
 #include "common/Pcsx2Types.h"
 

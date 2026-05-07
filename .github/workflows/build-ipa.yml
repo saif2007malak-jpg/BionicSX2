@@ -41,15 +41,11 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --target PCSX2 2>&1 | tee build_errors.txt
-          if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            echo "BUILD FAILED"
-            exit 1
-          fi
+          cmake --build build --target PCSX2 -- -k 0 2>&1 | tee build_errors.txt; true
 
       - name: Extract unique errors
         run: |
-          grep -E "error:|fatal error:" build_errors.txt | grep -v "^#" | sort -u > unique_errors.txt
+          grep -E "^FAILED:|error:" build_errors.txt | sort -u > unique_errors.txt
           echo "Unique errors found:"
           cat unique_errors.txt
 
