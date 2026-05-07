@@ -27,7 +27,17 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DPCSX2_TARGET_IOS=ON \
             -DCMAKE_TOOLCHAIN_FILE=cmake/ios.toolchain.cmake \
-            -DIOS=ON
+            -DIOS=ON \
+            2>&1 | tee cmake_full.txt
+          echo "Exit code: $?"
+          cat cmake_full.txt
+
+      - name: Upload cmake log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cmake-full-log
+          path: cmake_full.txt
 
       - name: Build
         run: |
