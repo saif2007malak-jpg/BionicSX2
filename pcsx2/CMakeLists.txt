@@ -868,8 +868,12 @@ endif()
 set(pcsx2InputHeaders
 	Input/InputManager.h
 	Input/InputSource.h
-	Input/SDLInputSource.h
 )
+if(NOT IOS)
+	list(APPEND pcsx2InputHeaders
+		Input/SDLInputSource.h
+	)
+endif()
 
 if(APPLE)
 	list(APPEND pcsx2GSSources

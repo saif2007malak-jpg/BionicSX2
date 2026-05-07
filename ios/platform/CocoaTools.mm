@@ -8,7 +8,7 @@
 #endif
 
 #include "common/CocoaTools.h"
-#include "Console.h"
+#include "common/Console.h"
 #include "WindowInfo.h"
 
 #include <UIKit/UIKit.h>
