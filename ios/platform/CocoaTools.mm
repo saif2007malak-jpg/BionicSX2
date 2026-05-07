@@ -7,7 +7,7 @@
     #error "Compile this with -fobjc-arc"
 #endif
 
-#include "CocoaTools.h"
+#include "common/CocoaTools.h"
 #include "Console.h"
 #include "WindowInfo.h"
 

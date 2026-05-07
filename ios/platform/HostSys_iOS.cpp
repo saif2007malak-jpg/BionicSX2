@@ -11,7 +11,7 @@
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
 #include <mach/vm_prot.h>
-#include <mach/vm_allocate.h>
+#include <mach/mach.h>
 #include <pthread.h>
 #include <sys/mman.h>
 #include <unistd.h>

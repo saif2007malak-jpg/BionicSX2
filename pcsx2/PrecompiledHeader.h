@@ -10,6 +10,7 @@
 
 #include "common/Pcsx2Defs.h"
 #include "common/Threading.h"
+#include "common/Pcsx2Types.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Include the STL that's actually handy.

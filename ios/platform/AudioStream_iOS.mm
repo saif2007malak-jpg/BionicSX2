@@ -9,7 +9,7 @@
 
 #include "Host/AudioStream.h"
 #include "Host/AudioStreamTypes.h"
-#include "Console.h"
+#include "common/Console.h"
 
 #include <AVFoundation/AVFoundation.h>
 #include <AudioToolbox/AudioToolbox.h>
