@@ -9,7 +9,7 @@
 
 #include "common/CocoaTools.h"
 #include "common/Console.h"
-#include "WindowInfo.h"
+#include "common/WindowInfo.h"
 
 #include <UIKit/UIKit.h>
 #include <QuartzCore/QuartzCore.h>
