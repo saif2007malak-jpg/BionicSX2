@@ -291,6 +291,14 @@ int main() {
 endfunction()
 
 function(get_recursive_include_directories output target inc_prop link_prop)
+	# Cycle detection: use a global property to track visited targets
+	get_property(visited GLOBAL PROPERTY _grd_visited_${target})
+	if(visited)
+		set(${output} "" PARENT_SCOPE)
+		return()
+	endif()
+	set_property(GLOBAL PROPERTY _grd_visited_${target} 1)
+
 	get_target_property(dirs ${target} ${inc_prop})
 	if(NOT dirs)
 		set(dirs)
@@ -301,8 +309,6 @@ function(get_recursive_include_directories output target inc_prop link_prop)
 			if(TARGET ${dep})
 				get_recursive_include_directories(depdirs ${dep} INTERFACE_INCLUDE_DIRECTORIES INTERFACE_LINK_LIBRARIES)
 				foreach(depdir IN LISTS depdirs)
-					# Only match absolute paths
-					# We'll hope any non-absolute paths will not get set as system directories
 					if(depdir MATCHES "^/")
 						list(APPEND dirs ${depdir})
 					endif()
