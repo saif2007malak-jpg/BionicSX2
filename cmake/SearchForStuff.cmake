@@ -200,7 +200,9 @@ target_include_directories(zip PRIVATE
     ${CMAKE_SOURCE_DIR}/3rdparty/zstd/lib)
 add_subdirectory(3rdparty/rcheevos EXCLUDE_FROM_ALL)
 add_subdirectory(3rdparty/rapidjson EXCLUDE_FROM_ALL)
-add_subdirectory(3rdparty/discord-rpc EXCLUDE_FROM_ALL)
+if(NOT IOS)
+	add_subdirectory(3rdparty/discord-rpc EXCLUDE_FROM_ALL)
+endif()
 add_subdirectory(3rdparty/freesurround EXCLUDE_FROM_ALL)
 
 if(USE_OPENGL)

@@ -1162,7 +1162,6 @@ target_link_libraries(PCSX2_FLAGS INTERFACE
 	cpuinfo
 	cubeb
 	rcheevos
-	discord-rpc
 	simpleini
 	freesurround
 	ZLIB::ZLIB
@@ -1181,6 +1180,7 @@ target_link_libraries(PCSX2_FLAGS INTERFACE
 if(NOT IOS)
 	target_link_libraries(PCSX2_FLAGS INTERFACE
 		SDL3::SDL3
+		discord-rpc
 	)
 endif()
 
