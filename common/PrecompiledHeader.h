@@ -6,3 +6,8 @@
 #include <csignal>
 #include <cerrno>
 #include <cstdio>
+#include <cstring>
+
+#include "common/Threading.h"
+#include "common/SettingsInterface.h"
+#include "common/StringUtil.h"

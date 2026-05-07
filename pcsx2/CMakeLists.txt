@@ -1260,6 +1260,29 @@ set_source_files_properties(PrecompiledHeader.cpp PROPERTIES HEADER_FILE_ONLY TR
 if(COMMAND target_precompile_headers)
 	message("Using precompiled headers.")
 	target_precompile_headers(PCSX2_FLAGS INTERFACE PrecompiledHeader.h)
+
+	# Exclude .mm files from PCH on iOS — PCH is compiled as C++, .mm files enable ObjC
+	if(IOS)
+		# iOS platform .mm files
+		set_source_files_properties(
+			${CMAKE_SOURCE_DIR}/ios/platform/CocoaTools.mm
+			${CMAKE_SOURCE_DIR}/ios/platform/AudioStream_iOS.mm
+			PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+		# Metal renderer .mm files (if Metal is enabled)
+		set_source_files_properties(
+			${CMAKE_SOURCE_DIR}/pcsx2/GS/Renderers/Metal/GSMTLDeviceInfo.mm
+			${CMAKE_SOURCE_DIR}/pcsx2/GS/Renderers/Metal/GSTextureMTL.mm
+			${CMAKE_SOURCE_DIR}/pcsx2/GS/Renderers/Metal/GSDeviceMTL.mm
+			PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+		message("iOS: Excluded .mm files from PCH")
+	endif()
+endif()
+
+# Ensure Threading.h and other common headers are findable on iOS
+if(IOS)
+	target_include_directories(PCSX2_FLAGS INTERFACE
+		${CMAKE_SOURCE_DIR}/common
+		${CMAKE_SOURCE_DIR}/pcsx2)
 endif()
 
 # Copy resource files if needed
