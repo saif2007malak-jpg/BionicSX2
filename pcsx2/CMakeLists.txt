@@ -834,10 +834,9 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/BiosDebugData.h)
 
 set(pcsx2HostSources
-	Host/AudioStream.cpp
-	Host/SDLAudioStream.cpp)
+	Host/AudioStream.cpp)
 if(NOT IOS)
-	list(APPEND pcsx2HostSources Host/CubebAudioStream.cpp)
+	list(APPEND pcsx2HostSources Host/SDLAudioStream.cpp Host/CubebAudioStream.cpp)
 endif()
 
 set(pcsx2HostHeaders
@@ -1114,8 +1113,10 @@ target_sources(PCSX2 PRIVATE
 	${pcsx2PADHeaders}
 	${pcsx2PADSources}
 	${pcsx2RecordingSources}
+if(NOT IOS)
 	${pcsx2DebugToolsSources}
 	${pcsx2DebugToolsHeaders}
+endif()
 	${pcsx2HostSources}
 	${pcsx2HostHeaders}
 	${pcsx2ImGuiSources}
@@ -1186,7 +1187,6 @@ target_link_libraries(PCSX2_FLAGS INTERFACE
 	LZMA::LZMA
 	Zstd::Zstd
 	demanglegnu
-	ccc
 	plutovg::plutovg
 	plutosvg::plutosvg
 	${LIBC_LIBRARIES}
@@ -1197,6 +1197,7 @@ if(NOT IOS)
 		SDL3::SDL3
 		discord-rpc
 		cubeb
+		ccc
 	)
 endif()
 

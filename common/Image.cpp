@@ -700,7 +700,7 @@ bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size)
 	std::vector<u32> pixels;
 	pixels.resize(static_cast<u32>(width) * static_cast<u32>(height));
 	if (!WebPDecodeRGBAInto(static_cast<const u8*>(buffer), buffer_size, reinterpret_cast<u8*>(pixels.data()),
-			sizeof(u32) * pixels.size(), sizeof(u32) * static_cast<u32>(width)))
+			sizeof(u32) * pixels.size(), static_cast<int>(sizeof(u32) * static_cast<u32>(width))))
 	{
 		Console.Error("WebPDecodeRGBAInto() failed");
 		return false;

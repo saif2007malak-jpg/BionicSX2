@@ -30,7 +30,9 @@
 #ifndef IOS
 #include <ApplicationServices/ApplicationServices.h>
 #endif
+#if !TARGET_OS_IOS
 #include <IOKit/pwr_mgt/IOPMLib.h>
+#endif
 
 // Darwin (OSX) is a bit different from Linux when requesting properties of
 // the OS because of its BSD/Mach heritage. Helpfully, most of this code
@@ -140,8 +142,11 @@ std::string GetOSVersionString()
 	return type + " " + release + " " + arch;
 }
 
+#if !TARGET_OS_IOS
 static IOPMAssertionID s_pm_assertion;
+#endif
 
+#if !TARGET_OS_IOS
 bool Common::InhibitScreensaver(bool inhibit)
 {
 	if (s_pm_assertion)
@@ -155,6 +160,7 @@ bool Common::InhibitScreensaver(bool inhibit)
 
 	return true;
 }
+#endif // !TARGET_OS_IOS
 
 void Common::SetMousePosition(int x, int y)
 {

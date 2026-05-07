@@ -23,6 +23,10 @@ foreach(mm_file IN LISTS ios_platform_mm_sources)
     endif()
 endforeach()
 
+# Enable Objective-C ARC for .mm files
+set_source_files_properties(${ios_platform_mm_sources}
+    PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+
 # Add iOS platform sources to PCSX2 target
 if(TARGET PCSX2)
     target_sources(PCSX2 PRIVATE ${ios_platform_sources})
