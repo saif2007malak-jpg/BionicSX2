@@ -1208,9 +1208,11 @@ if(WIN32)
 		OneCore.lib
 	)
 else()
-	target_link_libraries(PCSX2_FLAGS INTERFACE
-		PCAP::PCAP
-	)
+    if(NOT IOS)
+	    target_link_libraries(PCSX2_FLAGS INTERFACE
+		    PCAP::PCAP
+	    )
+    endif()
 endif()
 
 # additonal include directories
