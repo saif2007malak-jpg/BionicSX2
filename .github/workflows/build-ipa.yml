@@ -41,7 +41,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --target PCSX2 -- -k 0 2>&1 | tee build_errors.txt; true
+          cmake --build build --target PCSX2 -- -k 0 2>&1 | tee build_errors.txt
 
       - name: Extract unique errors
         run: |
