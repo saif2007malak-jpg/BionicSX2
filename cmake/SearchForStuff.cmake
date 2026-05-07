@@ -178,6 +178,8 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/zstd/build/cmake/CMakeLists.txt")
     add_subdirectory(3rdparty/zstd/build/cmake EXCLUDE_FROM_ALL)
     if(TARGET libzstd_static AND NOT TARGET Zstd::Zstd)
         add_library(Zstd::Zstd ALIAS libzstd_static)
+        target_include_directories(libzstd_static INTERFACE
+            ${CMAKE_SOURCE_DIR}/3rdparty/zstd/lib)
     endif()
 endif()
 
