@@ -239,7 +239,6 @@ target_include_directories(common PUBLIC ../3rdparty/include ../)
 if(IOS)
 	target_include_directories(common PUBLIC
 		${CMAKE_SOURCE_DIR}/pcsx2)
-	target_link_libraries(common PUBLIC PCSX2_FLAGS)
 endif()
 target_compile_definitions(common PUBLIC "${PCSX2_DEFS}")
 target_compile_options(common PRIVATE "${PCSX2_WARNINGS}")
