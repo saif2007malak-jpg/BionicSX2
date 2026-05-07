@@ -10,6 +10,7 @@
 #include <cstring>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <Foundation/Foundation.h>
 
 // iOS sandbox paths:
 //   ~/Documents       — User-visible files (games, saves)
@@ -60,20 +61,13 @@ bool FileSystem::SetWorkingDirectory(const char* path)
 
 std::string FileSystem::GetProgramPath()
 {
-    // On iOS, the executable is in the app bundle
-    // Use proc_pidpath or _NSGetExecutablePath
-    char buffer[PATH_MAX];
-    size_t bufferSize = sizeof(buffer);
-
-    // Try proc_pidpath first (preferred)
-    int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, getpid()};
-    if (sysctl(mib, 4, buffer, &bufferSize, nullptr, 0) == 0 && bufferSize > 0)
-    {
-        buffer[bufferSize - 1] = '\0';
-        return std::string(buffer);
+    // On iOS, use NSBundle to get the executable path
+    @autoreleasepool {
+        NSString* path = [[NSBundle mainBundle] executablePath];
+        if (path)
+            return std::string([path UTF8String]);
     }
-
-    // Fallback: return a reasonable path
+    // Fallback
     return Path::Combine(GetHomeDirectory(), "BionicSX2.app/BionicSX2");
 }
 

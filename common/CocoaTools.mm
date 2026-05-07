@@ -12,7 +12,11 @@
 #include <dlfcn.h>
 #include <mutex>
 #include <vector>
+#if defined(TARGET_OS_IOS) && TARGET_OS_IOS
+#include <UIKit/UIKit.h>
+#else
 #include <Cocoa/Cocoa.h>
+#endif
 #include <QuartzCore/QuartzCore.h>
 
 // MARK: - Metal Layers

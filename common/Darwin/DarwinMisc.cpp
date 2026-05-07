@@ -27,7 +27,9 @@
 #include <mach/task.h>
 #include <mach/vm_map.h>
 #include <mutex>
+#ifndef IOS
 #include <ApplicationServices/ApplicationServices.h>
+#endif
 #include <IOKit/pwr_mgt/IOPMLib.h>
 
 // Darwin (OSX) is a bit different from Linux when requesting properties of

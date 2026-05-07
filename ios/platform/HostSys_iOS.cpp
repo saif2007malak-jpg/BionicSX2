@@ -9,9 +9,9 @@
 #include "common/Threading.h"
 
 #include <mach/mach_init.h>
-#include <mach/mach_vm.h>
 #include <mach/vm_map.h>
 #include <mach/vm_prot.h>
+#include <mach/vm_allocate.h>
 #include <pthread.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -44,27 +44,29 @@ void* HostSys::Mmap(void* base, size_t size, const PageProtectionMode& mode)
     }
 #endif
 
-    kern_return_t ret = mach_vm_allocate(mach_task_self(), reinterpret_cast<mach_vm_address_t*>(&base),
-        static_cast<mach_vm_size_t>(size),
+    vm_address_t addr = reinterpret_cast<vm_address_t>(base);
+    kern_return_t ret = vm_allocate(mach_task_self(), &addr,
+        static_cast<vm_size_t>(size),
         base ? VM_FLAGS_FIXED : VM_FLAGS_ANYWHERE);
     if (ret != KERN_SUCCESS)
     {
-        DEV_LOG("mach_vm_allocate() returned {}", ret);
+        DEV_LOG("vm_allocate() returned {}", ret);
         return nullptr;
     }
+    base = reinterpret_cast<void*>(addr);
 
     vm_prot_t machmode = 0;
     if (mode.CanRead()) machmode |= VM_PROT_READ;
     if (mode.CanWrite()) machmode |= VM_PROT_WRITE;
     if (mode.CanExecute()) machmode |= VM_PROT_EXECUTE;
 
-    ret = mach_vm_protect(mach_task_self(), reinterpret_cast<mach_vm_address_t>(base),
-        static_cast<mach_vm_size_t>(size), false, machmode);
+    ret = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(base),
+        static_cast<vm_size_t>(size), false, machmode);
     if (ret != KERN_SUCCESS)
     {
-        DEV_LOG("mach_vm_protect() returned {}", ret);
-        mach_vm_deallocate(mach_task_self(), reinterpret_cast<mach_vm_address_t>(base),
-            static_cast<mach_vm_size_t>(size));
+        DEV_LOG("vm_protect() returned {}", ret);
+        vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(base),
+            static_cast<vm_size_t>(size));
         return nullptr;
     }
 
@@ -76,8 +78,8 @@ void HostSys::Munmap(void* base, size_t size)
     if (!base)
         return;
 
-    mach_vm_deallocate(mach_task_self(), reinterpret_cast<mach_vm_address_t>(base),
-        static_cast<mach_vm_size_t>(size));
+    vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(base),
+        static_cast<vm_size_t>(size));
 }
 
 void HostSys::MemProtect(void* baseaddr, size_t size, const PageProtectionMode& mode)
@@ -89,13 +91,13 @@ void HostSys::MemProtect(void* baseaddr, size_t size, const PageProtectionMode& 
     if (mode.CanWrite()) machmode |= VM_PROT_WRITE;
     if (mode.CanExecute()) machmode |= VM_PROT_EXECUTE;
 
-    kern_return_t res = mach_vm_protect(mach_task_self(),
-        reinterpret_cast<mach_vm_address_t>(baseaddr),
-        static_cast<mach_vm_size_t>(size), false, machmode);
+    kern_return_t res = vm_protect(mach_task_self(),
+        reinterpret_cast<vm_address_t>(baseaddr),
+        static_cast<vm_size_t>(size), false, machmode);
     if (res != KERN_SUCCESS) [[unlikely]]
     {
-        ERROR_LOG("mach_vm_protect() failed: {}", res);
-        pxFailRel("mach_vm_protect() failed");
+        ERROR_LOG("vm_protect() failed: {}", res);
+        pxFailRel("vm_protect() failed");
     }
 }
 
@@ -116,14 +118,20 @@ static thread_local int s_code_write_depth = 0;
 void HostSys::BeginCodeWrite()
 {
     if ((s_code_write_depth++) == 0)
-        pthread_jit_write_protect_np(0);
+    {
+        if (__builtin_available(iOS 14.2, *))
+            pthread_jit_write_protect_np(0);
+    }
 }
 
 void HostSys::EndCodeWrite()
 {
     pxAssert(s_code_write_depth > 0);
     if ((--s_code_write_depth) == 0)
-        pthread_jit_write_protect_np(1);
+    {
+        if (__builtin_available(iOS 14.2, *))
+            pthread_jit_write_protect_np(1);
+    }
 }
 
 #endif // _M_ARM64

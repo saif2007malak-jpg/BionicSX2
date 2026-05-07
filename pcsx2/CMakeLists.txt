@@ -378,8 +378,7 @@ set(pcsx2USBSources
 	USB/qemu-usb/input-keymap-qcode-to-qnum.cpp
 	USB/qemu-usb/usb-ohci.cpp
 	USB/shared/ringbuffer.cpp
-	USB/usb-eyetoy/cam-jpeg.cpp
-	USB/usb-eyetoy/jo_mpeg.cpp
+	USB/usb-eyetoy/jo_mpeg.cpp)
 	USB/usb-eyetoy/usb-eyetoy-webcam.cpp
 	USB/usb-hid/usb-hid.cpp
 	USB/usb-lightgun/guncon2.cpp
@@ -403,6 +402,7 @@ set(pcsx2USBSources
 if(NOT IOS)
 	list(APPEND pcsx2USBSources
 		USB/usb-mic/audiodev-cubeb.cpp
+		USB/usb-eyetoy/cam-jpeg.cpp
 	)
 endif()
 
@@ -639,7 +639,7 @@ endif()
 	endif()
 endif()
 
-if(USE_VULKAN)
+if(USE_VULKAN AND NOT IOS)
 	list(APPEND pcsx2GSSources
 		GS/Renderers/Vulkan/GSDeviceVK.cpp
 		GS/Renderers/Vulkan/GSTextureVK.cpp
@@ -661,9 +661,7 @@ if(USE_VULKAN)
 		GS/Renderers/Vulkan/VKStreamBuffer.h
 		GS/Renderers/Vulkan/VKSwapChain.h
 	)
-	if(NOT IOS)
-target_link_libraries(PCSX2_FLAGS INTERFACE vulkan-headers)
-endif()
+	target_link_libraries(PCSX2_FLAGS INTERFACE vulkan-headers)
 	target_include_directories(PCSX2_FLAGS INTERFACE ${SHADERC_INCLUDE_DIR})
 endif()
 
@@ -837,8 +835,10 @@ set(pcsx2DebugToolsHeaders
 
 set(pcsx2HostSources
 	Host/AudioStream.cpp
-	Host/CubebAudioStream.cpp
 	Host/SDLAudioStream.cpp)
+if(NOT IOS)
+	list(APPEND pcsx2HostSources Host/CubebAudioStream.cpp)
+endif()
 
 set(pcsx2HostHeaders
 	Host/AudioStream.h
@@ -862,8 +862,10 @@ set(pcsx2ImGuiHeaders
 set(pcsx2InputSources
 	Input/InputManager.cpp
 	Input/InputSource.cpp
-	Input/SDLInputSource.cpp
 )
+if(NOT IOS)
+	list(APPEND pcsx2InputSources Input/SDLInputSource.cpp)
+endif()
 set(pcsx2InputHeaders
 	Input/InputManager.h
 	Input/InputSource.h
@@ -1109,8 +1111,6 @@ endif()
 target_sources(PCSX2 PRIVATE
 	${pcsx2CDVDSources}
 	${pcsx2CDVDHeaders}
-	${pcsx2DEV9Sources}
-	${pcsx2DEV9Headers}
 	${pcsx2PADHeaders}
 	${pcsx2PADSources}
 	${pcsx2RecordingSources}
@@ -1125,6 +1125,12 @@ target_sources(PCSX2 PRIVATE
 	${pcsx2ps2Sources}
 	${pcsx2ps2Headers}
 )
+if(NOT IOS)
+	target_sources(PCSX2 PRIVATE
+		${pcsx2DEV9Sources}
+		${pcsx2DEV9Headers}
+	)
+endif()
 
 # platform sources
 if(LINUX)
@@ -1235,10 +1241,11 @@ target_include_directories(PCSX2_FLAGS INTERFACE
 	"${CMAKE_BINARY_DIR}/pcsx2"
 	"${CMAKE_BINARY_DIR}/common/include"
 	"${FFMPEG_INCLUDE_DIRS}"
+	"${CMAKE_SOURCE_DIR}/3rdparty/zstd/lib"
 )
 
 set_source_files_properties(PrecompiledHeader.cpp PROPERTIES HEADER_FILE_ONLY TRUE)
-if(COMMAND target_precompile_headers)
+if(COMMAND target_precompile_headers AND NOT IOS)
 	message("Using precompiled headers.")
 	target_precompile_headers(PCSX2_FLAGS INTERFACE PrecompiledHeader.h)
 endif()

@@ -347,4 +347,5 @@ endif()
 # --- iOS architecture-specific ---
 if(PCSX2_TARGET_IOS AND _M_ARM64)
     add_subdirectory(3rdparty/vixl EXCLUDE_FROM_ALL)
+    target_include_directories(PCSX2_FLAGS INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/vixl/include")
 endif()
