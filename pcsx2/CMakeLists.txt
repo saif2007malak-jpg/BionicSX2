@@ -38,7 +38,8 @@ endif()
 
 if(USE_LINKED_FFMPEG)
 	target_compile_definitions(PCSX2_FLAGS INTERFACE USE_LINKED_FFMPEG)
-	target_link_libraries(PCSX2_FLAGS INTERFACE FFMPEG::avcodec FFMPEG::avformat FFMPEG::avutil FFMPEG::swscale FFMPEG::swresample)
+	if(NOT IOS)
+target_link_libraries(PCSX2_FLAGS INTERFACE FFMPEG::avcodec FFMPEG::avformat FFMPEG::avutil FFMPEG::swscale FFMPEG::swresample)
 endif()
 
 if(WIN32)
@@ -597,7 +598,9 @@ if(USE_OPENGL)
 		GS/Renderers/OpenGL/GSDeviceOGL.h
 		GS/Renderers/OpenGL/GSTextureOGL.h
 	)
-	target_link_libraries(PCSX2_FLAGS INTERFACE glad)
+	if(NOT IOS)
+target_link_libraries(PCSX2_FLAGS INTERFACE glad)
+endif()
 
 	if(WIN32)
 		list(APPEND pcsx2GSSources GS/Renderers/OpenGL/GLContextWGL.cpp)
@@ -647,7 +650,9 @@ if(USE_VULKAN)
 		GS/Renderers/Vulkan/VKStreamBuffer.h
 		GS/Renderers/Vulkan/VKSwapChain.h
 	)
-	target_link_libraries(PCSX2_FLAGS INTERFACE vulkan-headers)
+	if(NOT IOS)
+target_link_libraries(PCSX2_FLAGS INTERFACE vulkan-headers)
+endif()
 	target_include_directories(PCSX2_FLAGS INTERFACE ${SHADERC_INCLUDE_DIR})
 endif()
 
@@ -873,7 +878,9 @@ endif()
 if(WIN32)
 	# RAIntegration is only supported on Windows.
 	target_compile_definitions(PCSX2_FLAGS INTERFACE ENABLE_RAINTEGRATION)
-	target_link_libraries(PCSX2_FLAGS INTERFACE rainterface)
+	if(NOT IOS)
+target_link_libraries(PCSX2_FLAGS INTERFACE rainterface)
+endif()
 endif()
 if(WIN32)
 	list(APPEND pcsx2InputSources
@@ -1064,7 +1071,9 @@ set(pcsx2LTOSources
 
 if(_M_X86)
 	list(APPEND pcsx2LTOSources ${pcsx2x86Sources} ${pcsx2x86Headers})
-	target_link_libraries(PCSX2_FLAGS INTERFACE zydis)
+	if(NOT IOS)
+target_link_libraries(PCSX2_FLAGS INTERFACE zydis)
+endif()
 elseif(_M_ARM64)
 	if(PCSX2_ENABLE_JIT)
 		list(APPEND pcsx2LTOSources ${pcsx2arm64Sources} ${pcsx2arm64Headers})
