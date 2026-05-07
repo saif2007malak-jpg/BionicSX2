@@ -92,4 +92,8 @@ target_compile_definitions(pcsx2-lzma PRIVATE _7ZIP_ST)
 target_include_directories(pcsx2-lzma PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_include_directories(pcsx2-lzma INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+if(IOS)
+  target_compile_definitions(pcsx2-lzma PRIVATE Z7_USE_AES_HW_STUB)
+endif()
+
 add_library(LZMA::LZMA ALIAS pcsx2-lzma)
