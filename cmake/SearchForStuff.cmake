@@ -178,8 +178,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/zstd/build/cmake/CMakeLists.txt")
     add_subdirectory(3rdparty/zstd/build/cmake EXCLUDE_FROM_ALL)
     if(TARGET libzstd_static AND NOT TARGET Zstd::Zstd)
         add_library(Zstd::Zstd ALIAS libzstd_static)
-        target_include_directories(libzstd_static INTERFACE
-            ${CMAKE_SOURCE_DIR}/3rdparty/zstd/lib)
     endif()
 endif()
 
@@ -189,6 +187,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DFMT_USE_EXCEPTIONS=0 -DFMT_USE_RTTI=0"
 add_subdirectory(3rdparty/fmt EXCLUDE_FROM_ALL)
 
 add_subdirectory(3rdparty/libchdr EXCLUDE_FROM_ALL)
+target_include_directories(libchdr PRIVATE
+    ${CMAKE_SOURCE_DIR}/3rdparty/zstd/lib)
 disable_compiler_warnings_for_target(libchdr)
 add_subdirectory(3rdparty/soundtouch EXCLUDE_FROM_ALL)
 add_subdirectory(3rdparty/simpleini EXCLUDE_FROM_ALL)
