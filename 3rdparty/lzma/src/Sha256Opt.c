@@ -179,7 +179,7 @@ void Z7_FASTCALL Sha256_UpdateBlocks_HW(UInt32 state[8], const Byte *data, size_
 
 #endif // USE_HW_SHA
 
-#elif defined(MY_CPU_ARM_OR_ARM64) && defined(MY_CPU_LE)
+#elif defined(MY_CPU_ARM_OR_ARM64) && defined(MY_CPU_LE) && !defined(IOS)
   
   #if   defined(__ARM_FEATURE_SHA2) \
      || defined(__ARM_FEATURE_CRYPTO)
