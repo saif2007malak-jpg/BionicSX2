@@ -170,7 +170,7 @@ add_subdirectory(3rdparty/rapidyaml EXCLUDE_FROM_ALL)
 add_subdirectory(3rdparty/lzma EXCLUDE_FROM_ALL)
 
 # zstd — must be before libchdr and libzip (they link to Zstd::Zstd)
-if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/zstd/CMakeLists.txt")
+if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/zstd/build/cmake/CMakeLists.txt")
     add_subdirectory(3rdparty/zstd/build/cmake EXCLUDE_FROM_ALL)
     if(TARGET libzstd_static AND NOT TARGET Zstd::Zstd)
         add_library(Zstd::Zstd ALIAS libzstd_static)

@@ -1155,7 +1155,6 @@ target_link_libraries(PCSX2_FLAGS INTERFACE
 	discord-rpc
 	simpleini
 	freesurround
-	SDL3::SDL3
 	ZLIB::ZLIB
 	LZ4::LZ4
 	SoundTouch::SoundTouch
@@ -1168,6 +1167,12 @@ target_link_libraries(PCSX2_FLAGS INTERFACE
 	plutosvg::plutosvg
 	${LIBC_LIBRARIES}
 )
+
+if(NOT IOS)
+	target_link_libraries(PCSX2_FLAGS INTERFACE
+		SDL3::SDL3
+	)
+endif()
 
 if(WIN32)
 	target_link_libraries(PCSX2_FLAGS INTERFACE

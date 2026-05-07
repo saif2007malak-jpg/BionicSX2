@@ -199,11 +199,15 @@ endif()
 
 target_link_libraries(common PRIVATE
 	${LIBC_LIBRARIES}
-	JPEG::JPEG
 	PNG::PNG
 	WebP::libwebp
 	cpuinfo
 )
+if(NOT IOS)
+	target_link_libraries(common PRIVATE
+		JPEG::JPEG
+	)
+endif()
 
 target_link_libraries(common PUBLIC
 	fmt::fmt
