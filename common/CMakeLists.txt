@@ -142,12 +142,18 @@ if(WIN32)
 	)
 elseif(APPLE)
 	target_sources(common PRIVATE
-		CocoaTools.mm
-		CocoaTools.h
 		Darwin/DarwinThreads.cpp
-		Darwin/DarwinMisc.cpp
-		Darwin/DarwinMisc.h
 	)
+
+	if(NOT IOS)
+		target_sources(common PRIVATE
+			CocoaTools.mm
+			CocoaTools.h
+			Darwin/DarwinMisc.cpp
+			Darwin/DarwinMisc.h
+		)
+	endif()
+
 	target_compile_options(common PRIVATE -fobjc-arc)
 	target_link_options(common PRIVATE -fobjc-link-runtime)
 	target_link_libraries(common PRIVATE
@@ -157,13 +163,6 @@ elseif(APPLE)
 		target_link_libraries(common PRIVATE
 			"-framework IOKit"
 		)
-	endif()
-
-	# Enable ARC for CocoaTools.mm on iOS
-	if(IOS)
-		set_source_files_properties(
-			${CMAKE_CURRENT_SOURCE_DIR}/CocoaTools.mm
-			PROPERTIES COMPILE_FLAGS "-fobjc-arc")
 	endif()
 else()
 	target_sources(common PRIVATE
