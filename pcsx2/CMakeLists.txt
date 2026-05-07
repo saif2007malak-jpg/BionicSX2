@@ -378,7 +378,7 @@ set(pcsx2USBSources
 	USB/qemu-usb/input-keymap-qcode-to-qnum.cpp
 	USB/qemu-usb/usb-ohci.cpp
 	USB/shared/ringbuffer.cpp
-	USB/usb-eyetoy/jo_mpeg.cpp)
+	USB/usb-eyetoy/jo_mpeg.cpp
 	USB/usb-eyetoy/usb-eyetoy-webcam.cpp
 	USB/usb-hid/usb-hid.cpp
 	USB/usb-lightgun/guncon2.cpp
@@ -398,8 +398,8 @@ set(pcsx2USBSources
 	USB/usb-pad/usb-turntable.cpp
 	USB/usb-printer/usb-printer.cpp
 )
-
 if(NOT IOS)
+
 	list(APPEND pcsx2USBSources
 		USB/usb-mic/audiodev-cubeb.cpp
 		USB/usb-eyetoy/cam-jpeg.cpp
@@ -1242,6 +1242,7 @@ target_include_directories(PCSX2_FLAGS INTERFACE
 	"${CMAKE_BINARY_DIR}/common/include"
 	"${FFMPEG_INCLUDE_DIRS}"
 	"${CMAKE_SOURCE_DIR}/3rdparty/zstd/lib"
+	"${CMAKE_SOURCE_DIR}/3rdparty/vixl/include"
 )
 
 set_source_files_properties(PrecompiledHeader.cpp PROPERTIES HEADER_FILE_ONLY TRUE)
