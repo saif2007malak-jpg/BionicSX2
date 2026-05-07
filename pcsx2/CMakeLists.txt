@@ -383,7 +383,6 @@ set(pcsx2USBSources
 	USB/usb-eyetoy/usb-eyetoy-webcam.cpp
 	USB/usb-hid/usb-hid.cpp
 	USB/usb-lightgun/guncon2.cpp
-	USB/usb-mic/audiodev-cubeb.cpp
 	USB/usb-mic/usb-headset.cpp
 	USB/usb-mic/usb-mic.cpp
 	USB/usb-msd/usb-msd.cpp
@@ -400,6 +399,12 @@ set(pcsx2USBSources
 	USB/usb-pad/usb-turntable.cpp
 	USB/usb-printer/usb-printer.cpp
 )
+
+if(NOT IOS)
+	list(APPEND pcsx2USBSources
+		USB/usb-mic/audiodev-cubeb.cpp
+	)
+endif()
 
 # USB headers
 set(pcsx2USBHeaders
@@ -420,7 +425,6 @@ set(pcsx2USBHeaders
 	USB/usb-hid/usb-hid.h
 	USB/usb-lightgun/guncon2.h
 	USB/usb-mic/audio.h
-	USB/usb-mic/audiodev-cubeb.h
 	USB/usb-mic/audiodev-noop.h
 	USB/usb-mic/audiodev.h
 	USB/usb-mic/usb-headset.h
@@ -436,6 +440,12 @@ set(pcsx2USBHeaders
 	USB/usb-pad/usb-trance-vibrator.h
 	USB/usb-printer/usb-printer.h
 )
+
+if(NOT IOS)
+	list(APPEND pcsx2USBHeaders
+		USB/usb-mic/audiodev-cubeb.h
+	)
+endif()
 
 # Host PAD
 set(pcsx2PADSources
@@ -1160,7 +1170,6 @@ target_link_libraries(PCSX2_FLAGS INTERFACE
 	libchdr
 	libzip::zip
 	cpuinfo
-	cubeb
 	rcheevos
 	simpleini
 	freesurround
@@ -1181,6 +1190,7 @@ if(NOT IOS)
 	target_link_libraries(PCSX2_FLAGS INTERFACE
 		SDL3::SDL3
 		discord-rpc
+		cubeb
 	)
 endif()
 

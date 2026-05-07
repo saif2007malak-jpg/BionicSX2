@@ -213,8 +213,10 @@ if(USE_VULKAN)
     add_subdirectory(3rdparty/vulkan EXCLUDE_FROM_ALL)
 endif()
 
-add_subdirectory(3rdparty/cubeb EXCLUDE_FROM_ALL)
-disable_compiler_warnings_for_target(cubeb)
+if(NOT IOS)
+	add_subdirectory(3rdparty/cubeb EXCLUDE_FROM_ALL)
+	disable_compiler_warnings_for_target(cubeb)
+endif()
 disable_compiler_warnings_for_target(speex)
 
 # --- iOS bundled libraries (only when PCSX2_TARGET_IOS=ON) ---
