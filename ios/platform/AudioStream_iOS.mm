@@ -209,13 +209,13 @@ public:
     {
         if (!m_engine)
             return 0.0f;
-        return _engine.mainMixerNode.volume;
+        return m_engine.mainMixerNode.volume;
     }
 
     void SetOutputVolume(float volume) override
     {
         if (m_engine)
-            _engine.mainMixerNode.volume = volume;
+            m_engine.mainMixerNode.volume = volume;
         m_volume = volume;
     }
 

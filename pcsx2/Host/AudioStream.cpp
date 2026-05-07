@@ -68,7 +68,7 @@ std::unique_ptr<AudioStream> AudioStream::CreateNullStream(u32 sample_rate, u32 
 
 	std::unique_ptr<AudioStream> stream(new AudioStream(sample_rate, params));
 	stream->BaseInitialize(&StereoSampleReaderImpl, false);
-	stream->SetOutputVolume(0);
+	stream->SetOutputVolume(0.0f);
 	return stream;
 }
 
@@ -521,7 +521,7 @@ void AudioStream::SetPaused(bool paused)
 	m_paused = paused;
 }
 
-void AudioStream::SetOutputVolume(u32 volume)
+void AudioStream::SetOutputVolume(float volume)
 {
 	m_volume = volume;
 }

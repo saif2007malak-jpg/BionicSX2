@@ -45,6 +45,14 @@ public:
 public:
 	virtual ~AudioStream();
 
+	virtual bool OpenDevice() { return false; }
+	virtual void CloseDevice() {}
+	virtual bool Start() { return false; }
+	virtual void Stop() {}
+	virtual u32 GetBufferedFrames() const { return 0; }
+	virtual u32 GetAvailableFrames() const { return 0; }
+	virtual void FramesAvailable() {}
+
 	static u32 GetAlignedBufferSize(u32 size);
 	static u32 GetBufferSizeForMS(u32 sample_rate, u32 ms);
 	static u32 GetMSForBufferSize(u32 sample_rate, u32 buffer_size);
@@ -62,7 +70,7 @@ public:
 	__fi u32 GetOutputChannels() const { return m_internal_channels; }
 	__fi u32 GetBufferSize() const { return m_buffer_size; }
 	__fi u32 GetTargetBufferSize() const { return m_target_buffer_size; }
-	__fi u32 GetOutputVolume() const { return m_volume; }
+	virtual float GetOutputVolume() const { return m_volume; }
 	__fi float GetNominalTempo() const { return m_nominal_rate; }
 	__fi AudioExpansionMode GetExpansionMode() const { return m_parameters.expansion_mode; }
 	__fi bool IsExpansionEnabled() const { return m_parameters.expansion_mode != AudioExpansionMode::Disabled; }
@@ -74,7 +82,7 @@ public:
 	/// Temporarily pauses the stream, preventing it from requesting data.
 	virtual void SetPaused(bool paused);
 
-	void SetOutputVolume(u32 volume);
+	virtual void SetOutputVolume(float volume);
 
 	void WriteChunk(const SampleType* chunk);
 
@@ -124,7 +132,7 @@ protected:
 	static void StereoSampleReaderImpl(SampleType* dest, const SampleType* src, u32 num_frames);
 
 	u32 m_sample_rate = 0;
-	u32 m_volume = 100;
+	float m_volume = 1.0f;
 	AudioStreamParameters m_parameters;
 	u8 m_internal_channels = 0;
 	u8 m_output_channels = 0;

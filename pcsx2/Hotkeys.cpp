@@ -45,20 +45,22 @@ static void HotkeyAdjustVolume(s32 fixed, s32 delta)
 	if (!VMManager::HasValidVM())
 		return;
 
-	const s32 current_vol = static_cast<s32>(SPU2::GetOutputVolume());
-	const s32 new_volume =
-		std::clamp((fixed >= 0) ? fixed : (current_vol + delta), 0, static_cast<s32>(Pcsx2Config::SPU2Options::MAX_VOLUME));
+	const float current_vol = SPU2::GetOutputVolume();
+	const s32 current_visible = static_cast<s32>(current_vol * static_cast<float>(Pcsx2Config::SPU2Options::MAX_VOLUME));
+	const s32 new_visible =
+		std::clamp((fixed >= 0) ? fixed : (current_visible + delta), 0, static_cast<s32>(Pcsx2Config::SPU2Options::MAX_VOLUME));
+	const float new_volume = static_cast<float>(new_visible) / static_cast<float>(Pcsx2Config::SPU2Options::MAX_VOLUME);
 	if (current_vol != new_volume)
-		SPU2::SetOutputVolume(static_cast<u32>(new_volume));
+		SPU2::SetOutputVolume(new_volume);
 
-	if (new_volume == 0)
+	if (new_visible == 0)
 	{
 		Host::AddIconOSDMessage("VolumeChanged", ICON_FA_VOLUME_XMARK, TRANSLATE_STR("Hotkeys", "Volume: Muted"));
 	}
 	else
 	{
-		Host::AddIconOSDMessage("VolumeChanged", (current_vol < new_volume) ? ICON_FA_VOLUME_HIGH : ICON_FA_VOLUME_LOW,
-			fmt::format(TRANSLATE_FS("Hotkeys", "Volume: {}%"), new_volume));
+		Host::AddIconOSDMessage("VolumeChanged", (current_visible < new_visible) ? ICON_FA_VOLUME_HIGH : ICON_FA_VOLUME_LOW,
+			fmt::format(TRANSLATE_FS("Hotkeys", "Volume: {}%"), new_visible));
 	}
 }
 

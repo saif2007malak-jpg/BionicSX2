@@ -31,13 +31,13 @@ void Reset(bool psxmode);
 void CheckForConfigChanges(const Pcsx2Config& old_config);
 
 /// Returns the current output volume, irrespective of the configuration.
-u32 GetOutputVolume();
+float GetOutputVolume();
 
 /// Directly updates the output volume without going through the configuration.
-void SetOutputVolume(u32 volume);
+void SetOutputVolume(float volume);
 
 /// Returns the volume that we would reset the output to on startup.
-u32 GetResetVolume();
+float GetResetVolume();
 
 /// Pauses/resumes the output stream.
 void SetOutputPaused(bool paused);

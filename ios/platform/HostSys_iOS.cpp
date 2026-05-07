@@ -16,12 +16,19 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <cstring>
+#include <dlfcn.h>
 
-extern "C" {
-    // pthread_jit_write_protect_np is available on iOS 14.2+ (real device only)
-    // with com.apple.security.cs.allow-jit entitlement.
-    // The iOS SDK headers do not expose it, so we forward-declare manually.
-    void pthread_jit_write_protect_np(int enabled);
+// pthread_jit_write_protect_np is marked unavailable in iOS SDK headers
+// but IS present at runtime on iOS 14.2+ devices with JIT entitlement.
+// Resolved via dlsym to bypass the compile-time availability restriction.
+namespace {
+    using JITWriteProtectFn = void(*)(int);
+    JITWriteProtectFn resolve_jit_write_protect() {
+        return reinterpret_cast<JITWriteProtectFn>(
+            dlsym(RTLD_DEFAULT, "pthread_jit_write_protect_np")
+        );
+    }
+    JITWriteProtectFn const s_jit_write_protect_np = resolve_jit_write_protect();
 }
 
 // Page size for iOS (vm_page_size)
@@ -126,11 +133,7 @@ void HostSys::BeginCodeWrite()
 {
     if ((s_code_write_depth++) == 0)
     {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability-new"
-        if (__builtin_available(iOS 14.2, *))
-            pthread_jit_write_protect_np(0);
-#pragma clang diagnostic pop
+        if (s_jit_write_protect_np) s_jit_write_protect_np(0);
     }
 }
 
@@ -139,11 +142,7 @@ void HostSys::EndCodeWrite()
     pxAssert(s_code_write_depth > 0);
     if ((--s_code_write_depth) == 0)
     {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability-new"
-        if (__builtin_available(iOS 14.2, *))
-            pthread_jit_write_protect_np(1);
-#pragma clang diagnostic pop
+        if (s_jit_write_protect_np) s_jit_write_protect_np(1);
     }
 }
 

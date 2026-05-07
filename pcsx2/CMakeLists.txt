@@ -390,7 +390,6 @@ set(pcsx2USBSources
 	USB/usb-pad/usb-gametrak.cpp
 	USB/usb-pad/usb-realplay.cpp
 	USB/usb-pad/usb-pad-ff.cpp
-	USB/usb-pad/usb-pad-sdl-ff.cpp
 	USB/usb-pad/usb-pad.cpp
 	USB/usb-pad/usb-seamic.cpp
 	USB/usb-pad/usb-train.cpp
@@ -403,6 +402,7 @@ if(NOT IOS)
 	list(APPEND pcsx2USBSources
 		USB/usb-mic/audiodev-cubeb.cpp
 		USB/usb-eyetoy/cam-jpeg.cpp
+		USB/usb-pad/usb-pad-sdl-ff.cpp
 	)
 endif()
 
@@ -434,7 +434,6 @@ set(pcsx2USBHeaders
 	USB/usb-pad/usb-buzz.h
 	USB/usb-pad/usb-gametrak.h
 	USB/usb-pad/usb-realplay.h
-	USB/usb-pad/usb-pad-sdl-ff.h
 	USB/usb-pad/usb-pad.h
 	USB/usb-pad/usb-train.h
 	USB/usb-pad/usb-trance-vibrator.h
@@ -444,6 +443,7 @@ set(pcsx2USBHeaders
 if(NOT IOS)
 	list(APPEND pcsx2USBHeaders
 		USB/usb-mic/audiodev-cubeb.h
+		USB/usb-pad/usb-pad-sdl-ff.h
 	)
 endif()
 

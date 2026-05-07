@@ -98,7 +98,7 @@ void SPU2writeDMA7Mem(u16* pMem, u32 size)
 void SPU2::CreateOutputStream()
 {
 	// Persist volume through stream recreates.
-	const u32 volume = s_output_stream ? s_output_stream->GetOutputVolume() : GetResetVolume();
+	const float volume = s_output_stream ? s_output_stream->GetOutputVolume() : GetResetVolume();
 	const u32 sample_rate = GetConsoleSampleRate();
 	s_output_stream.reset();
 
@@ -134,22 +134,26 @@ void SPU2::UpdateSampleRate()
 	}
 }
 
-u32 SPU2::GetOutputVolume()
+float SPU2::GetOutputVolume()
 {
 	return s_output_stream->GetOutputVolume();
 }
 
-void SPU2::SetOutputVolume(u32 volume)
+void SPU2::SetOutputVolume(float volume)
 {
 	s_output_stream->SetOutputVolume(volume);
 }
 
-u32 SPU2::GetResetVolume()
+float SPU2::GetResetVolume()
 {
-	return EmuConfig.SPU2.OutputMuted ? 0 :
-										((VMManager::GetTargetSpeed() != 1.0f) ?
-												EmuConfig.SPU2.FastForwardVolume :
-												EmuConfig.SPU2.OutputVolume);
+	if (EmuConfig.SPU2.OutputMuted)
+		return 0.0f;
+
+	const u32 config_volume = (VMManager::GetTargetSpeed() != 1.0f) ?
+		EmuConfig.SPU2.FastForwardVolume :
+		EmuConfig.SPU2.OutputVolume;
+
+	return static_cast<float>(config_volume) / static_cast<float>(Pcsx2Config::SPU2Options::MAX_VOLUME);
 }
 
 float SPU2::GetNominalRate()
