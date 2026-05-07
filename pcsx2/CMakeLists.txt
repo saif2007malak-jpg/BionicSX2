@@ -1113,10 +1113,6 @@ target_sources(PCSX2 PRIVATE
 	${pcsx2PADHeaders}
 	${pcsx2PADSources}
 	${pcsx2RecordingSources}
-if(NOT IOS)
-	${pcsx2DebugToolsSources}
-	${pcsx2DebugToolsHeaders}
-endif()
 	${pcsx2HostSources}
 	${pcsx2HostHeaders}
 	${pcsx2ImGuiSources}
@@ -1126,6 +1122,13 @@ endif()
 	${pcsx2ps2Sources}
 	${pcsx2ps2Headers}
 )
+
+if(NOT IOS)
+	target_sources(PCSX2 PRIVATE
+		${pcsx2DebugToolsSources}
+		${pcsx2DebugToolsHeaders}
+	)
+endif()
 if(NOT IOS)
 	target_sources(PCSX2 PRIVATE
 		${pcsx2DEV9Sources}
@@ -1192,14 +1195,6 @@ target_link_libraries(PCSX2_FLAGS INTERFACE
 	${LIBC_LIBRARIES}
 )
 
-if(NOT IOS)
-	target_link_libraries(PCSX2_FLAGS INTERFACE
-		SDL3::SDL3
-		discord-rpc
-		cubeb
-		ccc
-	)
-endif()
 
 if(WIN32)
 	target_link_libraries(PCSX2_FLAGS INTERFACE
@@ -1224,6 +1219,17 @@ if(WIN32)
 		dwmapi.lib
 		OneCore.lib
 	)
+
+if(NOT IOS)
+  target_sources(PCSX2 PRIVATE
+	target_link_libraries(PCSX2_FLAGS INTERFACE
+		SDL3::SDL3
+		discord-rpc
+		cubeb
+		ccc
+	)
+  )
+endif()
 else()
     if(NOT IOS)
 	    target_link_libraries(PCSX2_FLAGS INTERFACE
