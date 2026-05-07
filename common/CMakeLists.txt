@@ -152,8 +152,19 @@ elseif(APPLE)
 	target_link_options(common PRIVATE -fobjc-link-runtime)
 	target_link_libraries(common PRIVATE
 		"-framework Foundation"
-		"-framework IOKit"
 	)
+	if(NOT IOS)
+		target_link_libraries(common PRIVATE
+			"-framework IOKit"
+		)
+	endif()
+
+	# Enable ARC for CocoaTools.mm on iOS
+	if(IOS)
+		set_source_files_properties(
+			${CMAKE_CURRENT_SOURCE_DIR}/CocoaTools.mm
+			PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+	endif()
 else()
 	target_sources(common PRIVATE
 		Linux/LnxHostSys.cpp

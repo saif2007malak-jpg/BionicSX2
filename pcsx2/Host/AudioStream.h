@@ -132,6 +132,9 @@ protected:
 	bool m_stretch_inactive = false;
 	bool m_filling = false;
 	bool m_paused = false;
+	bool m_is_open = false;
+	bool m_is_running = false;
+	u32 m_buffer_size = 0;
 
 private:
 	static constexpr u32 AVERAGING_BUFFER_SIZE = 256;
@@ -168,7 +171,6 @@ private:
 	float AddAndGetAverageTempo(float val);
 	void UpdateStretchTempo();
 
-	u32 m_buffer_size = 0;
 	std::unique_ptr<s16[]> m_buffer;
 	SampleReader m_sample_reader = nullptr;
 

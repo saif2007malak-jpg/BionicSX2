@@ -49,6 +49,9 @@ set(MACOS FALSE)  # But not macOS
 # Define IOS as a C++ preprocessor macro so #ifdef IOS works in code
 add_compile_definitions(IOS=1)
 
+# Define TARGET_OS_IOS for Darwin-specific code (used in system headers)
+add_compile_definitions(TARGET_OS_IOS=1)
+
 # ------------------------------------------------------------------------------
 # iOS dependency configuration
 # ------------------------------------------------------------------------------

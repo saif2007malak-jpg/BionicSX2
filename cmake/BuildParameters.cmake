@@ -306,7 +306,4 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	add_link_options(-Wl,-dead_strip,-dead_strip_dylibs)
 endif()
 
-# Disable PCH for iOS (Objective-C compatibility)
-if(IOS)
-	set(PCSX2_USE_PRECOMPILED_HEADERS OFF CACHE BOOL "Disable precompiled headers for iOS" FORCE)
-endif()
+# PCH must stay ON for iOS — it's the only way Threading.h reaches all files.
