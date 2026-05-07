@@ -633,7 +633,7 @@ VAES_COMPAT_STUB (AesCtr_Code_HW)
 
 
 
-#elif defined(MY_CPU_ARM_OR_ARM64) && defined(MY_CPU_LE)
+#elif defined(MY_CPU_ARM_OR_ARM64) && defined(MY_CPU_LE) && !defined(IOS)
 
   #if   defined(__ARM_FEATURE_AES) \
      || defined(__ARM_FEATURE_CRYPTO)
