@@ -9,7 +9,9 @@
 #include "StringUtil.h"
 
 #include <common/FastJmp.h>
+#ifndef IOS
 #include <jpeglib.h>
+#endif
 #include <png.h>
 #include <webp/decode.h>
 #include <webp/encode.h>
@@ -22,10 +24,12 @@ static bool PNGBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 
 static bool PNGFileLoader(RGBA8Image* image, const char* filename, std::FILE* fp);
 static bool PNGFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp, u8 quality);
 
+#ifndef IOS
 static bool JPEGBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size);
 static bool JPEGBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality);
 static bool JPEGFileLoader(RGBA8Image* image, const char* filename, std::FILE* fp);
 static bool JPEGFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp, u8 quality);
+#endif
 
 static bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size);
 static bool WebPBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality);
@@ -43,8 +47,10 @@ struct FormatHandler
 
 static constexpr FormatHandler s_format_handlers[] = {
 	{"png", PNGBufferLoader, PNGBufferSaver, PNGFileLoader, PNGFileSaver},
+#ifndef IOS
 	{"jpg", JPEGBufferLoader, JPEGBufferSaver, JPEGFileLoader, JPEGFileSaver},
 	{"jpeg", JPEGBufferLoader, JPEGBufferSaver, JPEGFileLoader, JPEGFileSaver},
+#endif
 	{"webp", WebPBufferLoader, WebPBufferSaver, WebPFileLoader, WebPFileSaver},
 };
 
@@ -381,6 +387,7 @@ bool PNGBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality
 
 namespace
 {
+#ifndef IOS
 	struct JPEGErrorHandler
 	{
 		jpeg_error_mgr err;
@@ -680,6 +687,7 @@ bool JPEGFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp,
 			!cb.write_error);
 }
 
+#endif
 bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size)
 {
 	int width, height;
