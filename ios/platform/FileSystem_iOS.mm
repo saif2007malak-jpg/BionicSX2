@@ -71,18 +71,6 @@ std::string FileSystem::GetProgramPath()
     return Path::Combine(GetHomeDirectory(), "BionicSX2.app/BionicSX2");
 }
 
-// iOS-specific: Get the Documents directory (user-visible)
-std::string FileSystem::GetUserDirectory()
-{
-    return GetDocumentsDirectory();
-}
-
-// iOS-specific: Get the Library/Application Support directory
-std::string FileSystem::GetAppDataDirectory()
-{
-    return GetLibraryDirectory();
-}
-
 // Override: Ensure directories exist in iOS sandbox
 bool FileSystem::EnsureDirectoryExists(const char* path, bool recursive, Error* error)
 {

@@ -10,6 +10,7 @@
 #include "Host/AudioStream.h"
 #include "Host/AudioStreamTypes.h"
 #include "common/Console.h"
+#include "common/Error.h"
 
 #include <AVFoundation/AVFoundation.h>
 #include <AudioToolbox/AudioToolbox.h>
@@ -208,13 +209,14 @@ public:
     {
         if (!m_engine)
             return 0.0f;
-        return [m_engine outputVolume];
+        return _engine.mainMixerNode.volume;
     }
 
     void SetOutputVolume(float volume) override
     {
         if (m_engine)
-            [m_engine setOutputVolume:volume];
+            _engine.mainMixerNode.volume = volume;
+        m_volume = volume;
     }
 
 private:

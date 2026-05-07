@@ -17,6 +17,13 @@
 #include <unistd.h>
 #include <cstring>
 
+extern "C" {
+    // pthread_jit_write_protect_np is available on iOS 14.2+ (real device only)
+    // with com.apple.security.cs.allow-jit entitlement.
+    // The iOS SDK headers do not expose it, so we forward-declare manually.
+    void pthread_jit_write_protect_np(int enabled);
+}
+
 // Page size for iOS (vm_page_size)
 static size_t GetPageSize()
 {
