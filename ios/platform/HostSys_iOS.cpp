@@ -119,8 +119,11 @@ void HostSys::BeginCodeWrite()
 {
     if ((s_code_write_depth++) == 0)
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
         if (__builtin_available(iOS 14.2, *))
             pthread_jit_write_protect_np(0);
+#pragma clang diagnostic pop
     }
 }
 
@@ -129,8 +132,11 @@ void HostSys::EndCodeWrite()
     pxAssert(s_code_write_depth > 0);
     if ((--s_code_write_depth) == 0)
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
         if (__builtin_available(iOS 14.2, *))
             pthread_jit_write_protect_np(1);
+#pragma clang diagnostic pop
     }
 }
 

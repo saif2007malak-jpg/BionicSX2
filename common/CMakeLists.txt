@@ -154,7 +154,9 @@ elseif(APPLE)
 		)
 	endif()
 
-	target_compile_options(common PRIVATE -fobjc-arc)
+	if(NOT IOS)
+		target_compile_options(common PRIVATE -fobjc-arc)
+	endif()
 	target_link_options(common PRIVATE -fobjc-link-runtime)
 	target_link_libraries(common PRIVATE
 		"-framework Foundation"
