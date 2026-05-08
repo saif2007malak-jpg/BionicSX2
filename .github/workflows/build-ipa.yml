@@ -23,6 +23,7 @@ jobs:
 
       - name: Configure CMake for iOS
         run: |
+          rm -rf build
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DPCSX2_TARGET_IOS=ON \
