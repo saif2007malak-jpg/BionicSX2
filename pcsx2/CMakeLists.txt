@@ -1287,6 +1287,7 @@ endif()
 # Ensure Threading.h and other common headers are findable on iOS
 if(IOS)
 	target_include_directories(PCSX2_FLAGS INTERFACE
+		${CMAKE_SOURCE_DIR}
 		${CMAKE_SOURCE_DIR}/common
 		${CMAKE_SOURCE_DIR}/pcsx2)
 		# Define IOS so C++ code can use #ifdef IOS
