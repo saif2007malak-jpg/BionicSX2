@@ -725,7 +725,7 @@ static bool WebPBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8
 	return true;
 }
 
-bool WebPFileLoader(RGBA8Image* image, const char* filename, std::FILE* fp)
+static bool WebPFileLoader(RGBA8Image* image, const char* filename, std::FILE* fp)
 {
 	std::optional<std::vector<u8>> data = FileSystem::ReadBinaryFile(fp);
 	if (!data.has_value())
@@ -734,7 +734,7 @@ bool WebPFileLoader(RGBA8Image* image, const char* filename, std::FILE* fp)
 	return WebPBufferLoader(image, static_cast<const void*>(data->data()), data->size());
 }
 
-bool WebPFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp, u8 quality)
+static bool WebPFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp, u8 quality)
 {
 	std::vector<u8> buffer;
 	if (!WebPBufferSaver(image, &buffer, quality))

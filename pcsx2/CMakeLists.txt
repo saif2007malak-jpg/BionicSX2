@@ -1264,7 +1264,12 @@ target_include_directories(PCSX2_FLAGS INTERFACE
 set_source_files_properties(PrecompiledHeader.cpp PROPERTIES HEADER_FILE_ONLY TRUE)
 if(COMMAND target_precompile_headers)
 	message("Using precompiled headers.")
+if(NOT IOS)
+	message("Using precompiled headers.")
 	target_precompile_headers(PCSX2_FLAGS INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeader.h)
+else()
+	message("iOS: PCH disabled to avoid ObjC mismatch — using explicit includes")
+endif()
 
 	# Exclude .mm files from PCH on iOS — PCH is compiled as C++, .mm files enable ObjC
 	if(IOS)
