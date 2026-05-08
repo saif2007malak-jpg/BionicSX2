@@ -25,6 +25,7 @@ namespace ccc {
 #endif
 
 #include <string>
+#include <map>
 
 enum
 {

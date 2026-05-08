@@ -637,7 +637,7 @@ endif()
 	endif()
 endif()
 
-if(USE_VULKAN AND NOT IOS)
+if(USE_VULKAN AND NOT (CMAKE_SYSTEM_NAME MATCHES "iOS"))
 	list(APPEND pcsx2GSSources
 		GS/Renderers/Vulkan/GSDeviceVK.cpp
 		GS/Renderers/Vulkan/GSTextureVK.cpp

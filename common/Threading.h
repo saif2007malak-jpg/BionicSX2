@@ -5,9 +5,7 @@
 
 #include "common/Pcsx2Defs.h"
 
-#if defined(__APPLE__)
-#include <mach/semaphore.h>
-#elif !defined(_WIN32)
+#if !defined(_WIN32)
 #include <semaphore.h>
 #endif
 

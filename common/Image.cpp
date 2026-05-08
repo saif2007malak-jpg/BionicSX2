@@ -31,8 +31,10 @@ static bool JPEGFileLoader(RGBA8Image* image, const char* filename, std::FILE* f
 static bool JPEGFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp, u8 quality);
 #endif
 
-static bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size);
-static bool WebPBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality);
+namespace {
+static bool Bionic_WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size);
+static bool Bionic_WebPBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality);
+}
 static bool WebPFileLoader(RGBA8Image* image, const char* filename, std::FILE* fp);
 static bool WebPFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp, u8 quality);
 
@@ -51,7 +53,7 @@ static constexpr FormatHandler s_format_handlers[] = {
 	{"jpg", JPEGBufferLoader, JPEGBufferSaver, JPEGFileLoader, JPEGFileSaver},
 	{"jpeg", JPEGBufferLoader, JPEGBufferSaver, JPEGFileLoader, JPEGFileSaver},
 #endif
-	{"webp", WebPBufferLoader, WebPBufferSaver, WebPFileLoader, WebPFileSaver},
+	{"webp", Bionic_WebPBufferLoader, Bionic_WebPBufferSaver, WebPFileLoader, WebPFileSaver},
 };
 
 static const FormatHandler* GetFormatHandler(const std::string_view extension)
@@ -688,7 +690,7 @@ bool JPEGFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp,
 }
 
 #endif
-static bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size)
+bool Bionic_WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size)
 {
 	int width, height;
 	if (!WebPGetInfo(static_cast<const u8*>(buffer), buffer_size, &width, &height) || width <= 0 || height <= 0)
@@ -710,7 +712,7 @@ static bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffe
 	return true;
 }
 
-static bool WebPBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality)
+bool Bionic_WebPBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality)
 {
 	u8* encoded_data;
 	const size_t encoded_size =
@@ -731,13 +733,13 @@ static bool WebPFileLoader(RGBA8Image* image, const char* filename, std::FILE* f
 	if (!data.has_value())
 		return false;
 
-	return WebPBufferLoader(image, static_cast<const void*>(data->data()), data->size());
+	return Bionic_WebPBufferLoader(image, static_cast<const void*>(data->data()), data->size());
 }
 
 static bool WebPFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp, u8 quality)
 {
 	std::vector<u8> buffer;
-	if (!WebPBufferSaver(image, &buffer, quality))
+	if (!Bionic_WebPBufferSaver(image, &buffer, quality))
 		return false;
 
 	return (std::fwrite(buffer.data(), buffer.size(), 1, fp) == 1);
