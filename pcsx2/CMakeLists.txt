@@ -833,6 +833,11 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/DisVUops.h
 	DebugTools/BiosDebugData.h)
 
+if(IOS)
+	list(REMOVE_ITEM pcsx2DebugToolsSources DebugTools/SymbolGuardian.cpp)
+	list(REMOVE_ITEM pcsx2DebugToolsHeaders DebugTools/SymbolGuardian.h)
+endif()
+
 set(pcsx2HostSources
 	Host/AudioStream.cpp)
 if(NOT IOS)

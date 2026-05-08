@@ -19,6 +19,8 @@
 
 #include "common/Pcsx2Types.h"
 
+#ifndef IOS
+
 class MemoryReader;
 
 struct SymbolInfo
@@ -103,3 +105,5 @@ protected:
 
 extern SymbolGuardian R5900SymbolGuardian;
 extern SymbolGuardian R3000SymbolGuardian;
+
+#endif // IOS
