@@ -688,7 +688,7 @@ bool JPEGFileSaver(const RGBA8Image& image, const char* filename, std::FILE* fp,
 }
 
 #endif
-bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size)
+static bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size)
 {
 	int width, height;
 	if (!WebPGetInfo(static_cast<const u8*>(buffer), buffer_size, &width, &height) || width <= 0 || height <= 0)
@@ -710,7 +710,7 @@ bool WebPBufferLoader(RGBA8Image* image, const void* buffer, size_t buffer_size)
 	return true;
 }
 
-bool WebPBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality)
+static bool WebPBufferSaver(const RGBA8Image& image, std::vector<u8>* buffer, u8 quality)
 {
 	u8* encoded_data;
 	const size_t encoded_size =

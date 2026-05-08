@@ -3,6 +3,8 @@
 
 #pragma once
 
+#ifndef IOS
+
 #include "Config.h"
 #include "SymbolGuardian.h"
 
@@ -92,3 +94,5 @@ protected:
 };
 
 extern SymbolImporter R5900SymbolImporter;
+
+#endif // IOS

@@ -5,8 +5,24 @@
 
 #include "BiosDebugData.h"
 #include "ExpressionParser.h"
+#ifndef IOS
 #include "SymbolGuardian.h"
 #include "SymbolImporter.h"
+#else
+// Forward declarations for iOS (debug tools not available)
+class SymbolGuardian;
+class SymbolImporter;
+namespace ccc {
+	class Function;
+	class FunctionHandle;
+	class GlobalVariableHandle;
+	class SymbolDatabase;
+	class DataTypeHandle;
+	class ModuleHandle;
+	class ElfFile;
+	class SymbolSourceHandle;
+}
+#endif
 
 #include <string>
 
