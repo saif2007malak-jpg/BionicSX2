@@ -97,7 +97,6 @@ set(pcsx2Sources
 	Patch.cpp
 	Pcsx2Config.cpp
 	PerformanceMetrics.cpp
-	PrecompiledHeader.cpp
 	R3000A.cpp
 	R3000AInterpreter.cpp
 	R3000AOpcodeTables.cpp
@@ -177,7 +176,6 @@ set(pcsx2Headers
 	MemoryTypes.h
 	Patch.h
 	PerformanceMetrics.h
-	PrecompiledHeader.h
 	R3000A.h
 	R5900.h
 	R5900OpcodeTables.h
@@ -1259,38 +1257,6 @@ target_include_directories(PCSX2_FLAGS INTERFACE
 	"${CMAKE_SOURCE_DIR}/3rdparty/vixl/include"
 )
 
-set_source_files_properties(PrecompiledHeader.cpp PROPERTIES HEADER_FILE_ONLY TRUE)
-if(COMMAND target_precompile_headers)
-	message("Using precompiled headers.")
-if(NOT IOS)
-	message("Using precompiled headers.")
-	target_precompile_headers(PCSX2_FLAGS INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeader.h)
-else()
-	message("iOS: PCH disabled to avoid ObjC mismatch — using explicit includes")
-endif()
-
-	# Exclude .mm files from PCH on iOS — PCH is compiled as C++, .mm files enable ObjC
-	if(IOS)
-		# iOS platform .mm files
-		set_source_files_properties(
-			${CMAKE_SOURCE_DIR}/ios/platform/CocoaTools.mm
-			${CMAKE_SOURCE_DIR}/ios/platform/AudioStream_iOS.mm
-			${CMAKE_SOURCE_DIR}/ios/platform/FileSystem_iOS.mm
-			PROPERTIES SKIP_PRECOMPILE_HEADERS ON COMPILE_FLAGS "-fobjc-arc")
-		# Metal renderer .mm files (if Metal is enabled)
-		set_source_files_properties(
-			${CMAKE_SOURCE_DIR}/pcsx2/GS/Renderers/Metal/GSMTLDeviceInfo.mm
-			${CMAKE_SOURCE_DIR}/pcsx2/GS/Renderers/Metal/GSTextureMTL.mm
-			${CMAKE_SOURCE_DIR}/pcsx2/GS/Renderers/Metal/GSDeviceMTL.mm
-			PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
-		message("iOS: Excluded .mm files from PCH")
-	endif()
-endif()
-
-# iOS: Force-include PrecompiledHeader.h to replace disabled PCH
-if(IOS)
-	target_compile_options(PCSX2 PRIVATE -include "${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeader.h")
-endif()
 
 # Ensure Threading.h and other common headers are findable on iOS
 if(IOS)
