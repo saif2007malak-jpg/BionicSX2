@@ -39,10 +39,10 @@ jobs:
           name: cmake-full-log
           path: cmake_full.txt
 
-      - name: Build
+      - name: Build PCSX2
         run: |
           set -o pipefail
-          cmake --build build --target PCSX2 -- -k 0 2>cmake --build build --target PCSX2 -- -k 0 2>&1 | tee build_errors.txt1 | tee build_errors.txt
+          cmake --build build --target PCSX2 -- -k 0 2>&1 | tee build_errors.txt
           echo "Build exit code: ${PIPESTATUS[0]}"
 
       - name: Extract unique errors
