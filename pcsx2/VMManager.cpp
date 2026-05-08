@@ -57,7 +57,9 @@
 #include "IconsFontAwesome6.h"
 #include "IconsPromptFont.h"
 #include "cpuinfo.h"
+#ifndef IOS
 #include "discord_rpc.h"
+#endif
 #include "fmt/format.h"
 
 #include <atomic>

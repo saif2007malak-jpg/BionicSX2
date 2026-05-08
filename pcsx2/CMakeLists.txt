@@ -1230,13 +1230,11 @@ if(WIN32)
 	)
 
 if(NOT IOS)
-  target_sources(PCSX2 PRIVATE
-	target_link_libraries(PCSX2_FLAGS INTERFACE
-		SDL3::SDL3
-		discord-rpc
-		cubeb
-		ccc
-	)
+  target_link_libraries(PCSX2_FLAGS INTERFACE
+	SDL3::SDL3
+	discord-rpc
+	cubeb
+	ccc
   )
 endif()
 else()
@@ -1287,6 +1285,11 @@ endif()
 			PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 		message("iOS: Excluded .mm files from PCH")
 	endif()
+endif()
+
+# iOS: Force-include PrecompiledHeader.h to replace disabled PCH
+if(IOS)
+	target_compile_options(PCSX2 PRIVATE -include "${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeader.h")
 endif()
 
 # Ensure Threading.h and other common headers are findable on iOS

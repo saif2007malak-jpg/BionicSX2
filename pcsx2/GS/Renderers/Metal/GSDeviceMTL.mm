@@ -10,6 +10,7 @@
 
 #include "common/Console.h"
 #include "common/HostSys.h"
+#include "common/Pcsx2Types.h"
 
 #include "cpuinfo.h"
 #include "imgui.h"
@@ -30,7 +31,13 @@ GSDevice* MakeGSDeviceMTL()
 std::vector<GSAdapterInfo> GetMetalAdapterList()
 { @autoreleasepool {
 	std::vector<GSAdapterInfo> list;
+#if TARGET_OS_OSX
 	auto devs = MRCTransfer(MTLCopyAllDevices());
+#else
+	// iOS only has one GPU device
+	NSMutableArray<id<MTLDevice>>* devs = [NSMutableArray array];
+	[devs addObject:MTLCreateSystemDefaultDevice()];
+#endif
 	for (id<MTLDevice> dev in devs.Get())
 	{
 		GSAdapterInfo ai;
@@ -766,9 +773,11 @@ void GSDeviceMTL::AttachSurfaceOnMainThread()
 	m_layer = MRCRetain([CAMetalLayer layer]);
 	[m_layer setDrawableSize:CGSizeMake(m_window_info.surface_width, m_window_info.surface_height)];
 	[m_layer setDevice:m_dev.dev];
+#if TARGET_OS_OSX
 	m_view = MRCRetain((__bridge NSView*)m_window_info.window_handle);
 	[m_view setWantsLayer:YES];
 	[m_view setLayer:m_layer];
+#endif
 }
 
 void GSDeviceMTL::DetachSurfaceOnMainThread()
@@ -853,7 +862,12 @@ bool GSDeviceMTL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 		return false;
 
 	NSString* ns_adapter_name = [NSString stringWithUTF8String:GSConfig.Adapter.c_str()];
+#if TARGET_OS_OSX
 	auto devs = MRCTransfer(MTLCopyAllDevices());
+#else
+	NSMutableArray<id<MTLDevice>>* devs = [NSMutableArray array];
+	[devs addObject:MTLCreateSystemDefaultDevice()];
+#endif
 	for (id<MTLDevice> dev in devs.Get())
 	{
 		if ([[dev name] isEqualToString:ns_adapter_name])
@@ -1367,8 +1381,10 @@ void GSDeviceMTL::EndPresent()
 				{
 					[[MTLCaptureManager sharedCaptureManager] stopCapture];
 					Console.WriteLn("Metal Trace Capture to /tmp/PCSX2MTLCapture.gputrace finished");
+#if TARGET_OS_OSX
 					[[NSWorkspace sharedWorkspace] selectFile:path
 					                 inFileViewerRootedAtPath:@"/tmp/"];
+#endif
 				}
 			}
 			else if (s_capture_next)
