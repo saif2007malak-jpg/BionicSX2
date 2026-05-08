@@ -602,11 +602,15 @@ namespace usb_pad
 
 	void PadState::OpenFFDevice()
 	{
+#ifdef IOS
+		return; // SDL force feedback not available on iOS
+#else
 		if (mFFdevName.empty())
 			return;
 
 		mFFdev.reset();
 		mFFdev = SDLFFDevice::Create(mFFdevName);
+#endif
 	}
 
 	static void pad_handle_data(USBDevice* dev, USBPacket* p)

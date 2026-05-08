@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "GS.h"
-
 #include "common/Threading.h"
+
+#include "GS.h"
 
 #include <functional>
 
