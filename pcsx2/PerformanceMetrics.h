@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0+
 
 #pragma once
-
-#include <array>
 #include "common/Threading.h"
+#include <thread>
+#include <array>
 
 namespace PerformanceMetrics
 {

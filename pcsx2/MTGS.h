@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0+
 
 #pragma once
-
 #include "common/Threading.h"
 
 #include "GS.h"

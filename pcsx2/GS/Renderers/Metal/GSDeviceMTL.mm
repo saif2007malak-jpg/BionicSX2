@@ -32,20 +32,26 @@ std::vector<GSAdapterInfo> GetMetalAdapterList()
 { @autoreleasepool {
 	std::vector<GSAdapterInfo> list;
 #if TARGET_OS_OSX
-	auto devs = MRCTransfer(MTLCopyAllDevices());
+	NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+	for (id<MTLDevice> dev in devices)
 #else
-	// iOS only has one GPU device
-	NSMutableArray<id<MTLDevice>>* devs = [NSMutableArray array];
-	[devs addObject:MTLCreateSystemDefaultDevice()];
+	id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
+	if (!dev) return list;
 #endif
-	for (id<MTLDevice> dev in devs.Get())
 	{
 		GSAdapterInfo ai;
 		ai.name = [[dev name] UTF8String];
 		
 		ai.max_texture_size = 8192;
+#if TARGET_OS_OSX
 		if ([dev supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v1])
 			ai.max_texture_size = 16384;
+#else
+		if (@available(iOS 14.0, *)) {
+			if ([dev supportsFamily:MTLGPUFamilyApple2])
+				ai.max_texture_size = 16384;
+		}
+#endif
 		if (@available(macOS 10.15, iOS 13.0, *))
 			if ([dev supportsFamily:MTLGPUFamilyApple3])
 				ai.max_texture_size = 16384;
@@ -863,16 +869,13 @@ bool GSDeviceMTL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 
 	NSString* ns_adapter_name = [NSString stringWithUTF8String:GSConfig.Adapter.c_str()];
 #if TARGET_OS_OSX
-	auto devs = MRCTransfer(MTLCopyAllDevices());
+	NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+	id<MTLDevice> mtldev = devices.firstObject;
 #else
-	NSMutableArray<id<MTLDevice>>* devs = [NSMutableArray array];
-	[devs addObject:MTLCreateSystemDefaultDevice()];
+	id<MTLDevice> mtldev = MTLCreateSystemDefaultDevice();
 #endif
-	for (id<MTLDevice> dev in devs.Get())
-	{
-		if ([[dev name] isEqualToString:ns_adapter_name])
-			m_dev = GSMTLDevice(MRCRetain(dev));
-	}
+	if (mtldev && [[mtldev name] isEqualToString:ns_adapter_name])
+		m_dev = GSMTLDevice(MRCRetain(mtldev));
 	if (!m_dev.dev)
 	{
 		if (GSConfig.Adapter == GetDefaultAdapter())
@@ -1980,12 +1983,14 @@ void GSDeviceMTL::MRESetSampler(SamplerSelector sel)
 	m_current_render.has.sampler = true;
 }
 
+#if TARGET_OS_OSX
 static void textureBarrier(id<MTLRenderCommandEncoder> enc)
 {
 	[enc memoryBarrierWithScope:MTLBarrierScopeRenderTargets
 	                afterStages:MTLRenderStageFragment
 	               beforeStages:MTLRenderStageFragment];
 }
+#endif
 
 void GSDeviceMTL::MRESetTexture(GSTexture* tex, int pos)
 {
