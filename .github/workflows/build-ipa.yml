@@ -41,10 +41,13 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --target PCSX2 -- -k 0 2>&1 | tee build_errors.txt; true
+          set -o pipefail
+          cmake --build build --target PCSX2 -- -k 0 2>cmake --build build --target PCSX2 -- -k 0 2>&1 | tee build_errors.txt1 | tee build_errors.txt
+          echo "Build exit code: ${PIPESTATUS[0]}"
 
       - name: Extract unique errors
         run: |
+          set -o pipefail
           grep -E "^FAILED:|error:" build_errors.txt | sort -u > unique_errors.txt
           echo "Unique errors found:"
           cat unique_errors.txt
